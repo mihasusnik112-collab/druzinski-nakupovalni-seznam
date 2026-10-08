@@ -9,8 +9,10 @@ export default function AddItemModal({
   onClose,
   onAdd,
   currentMember,
+  familyMembers = [],
   deals = []
 }) {
+  const membersList = familyMembers.length > 0 ? familyMembers : FAMILY_MEMBERS;
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('mlecno');
   const [quantity, setQuantity] = useState('1 kos');
@@ -225,10 +227,10 @@ export default function AddItemModal({
               Družinski član (kdo dodaja)
             </label>
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-              {FAMILY_MEMBERS.map((m) => (
+              {membersList.map((m) => (
                 <button
                   type="button"
-                  key={m.name}
+                  key={m.id || m.name}
                   onClick={() => setAddedBy(m.name)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
                     addedBy === m.name

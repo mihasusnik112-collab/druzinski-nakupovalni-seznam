@@ -38,11 +38,20 @@ export const COMMON_ITEMS = [
   { title: 'Tablete za pomivalni stroj', category: 'cistila', unit: '1 pak' }
 ];
 
-export const FAMILY_MEMBERS = [
-  { name: 'Mami', avatar: '👩' },
-  { name: 'Oče', avatar: '👨' },
-  { name: 'Miha', avatar: '👦' },
-  { name: 'Anja', avatar: '👧' },
-  { name: 'Babica', avatar: '👵' },
-  { name: 'Deda', avatar: '👴' }
+export const DEFAULT_FAMILY_MEMBERS = [
+  { id: 'mami', name: 'Mami', avatar: '👩', color: '#ec4899' },
+  { id: 'oce', name: 'Oče', avatar: '👨', color: '#3b82f6' },
+  { id: 'miha', name: 'Miha', avatar: '👦', color: '#10b981' },
+  { id: 'anja', name: 'Anja', avatar: '👧', color: '#f59e0b' },
+  { id: 'babica', name: 'Babica', avatar: '👵', color: '#8b5cf6' },
+  { id: 'deda', name: 'Deda', avatar: '👴', color: '#64748b' }
+];
+
+// Ohranimo združljivost s kodo, ki uvaža FAMILY_MEMBERS
+export const FAMILY_MEMBERS = DEFAULT_FAMILY_MEMBERS;
+
+export const AVAILABLE_AVATARS = [
+  '👩', '👨', '👦', '👧', '👵', '👴', '🧑', '👶',
+  '🐱', '🐶', '🦊', '🐻', '🐼', '🦁', '🦄', '🐝',
+  '👑', '⭐', '🛒', '🦸', '🧙', '🚀', '🥑', '🍕'
 ];

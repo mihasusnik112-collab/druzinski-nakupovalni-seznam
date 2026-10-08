@@ -22,7 +22,7 @@ import DealModal from './components/DealModal';
 import DealsView from './components/DealsView';
 import SettingsModal from './components/SettingsModal';
 
-import { FAMILY_MEMBERS } from './data/commonItems';
+import { FAMILY_MEMBERS, DEFAULT_FAMILY_MEMBERS } from './data/commonItems';
 import { INITIAL_CATEGORIES } from './data/initialCategories';
 import { findBestDeal } from './utils/fuzzyMatch';
 import { 
@@ -32,7 +32,10 @@ import {
   toggleItemStatus, 
   deleteShoppingItem, 
   clearAllCompletedItems,
-  updateShoppingItem
+  updateShoppingItem,
+  getLocalMembers,
+  saveFamilyMembers,
+  subscribeFamilyMembers
 } from './services/shoppingService';
 
 export default function App() {
@@ -42,6 +45,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  const [familyMembers, setFamilyMembers] = useState(getLocalMembers);
+
   const [currentMember, setCurrentMember] = useState(() => {
     const saved = localStorage.getItem('nakupki_current_member');
     if (saved) {
@@ -49,7 +54,8 @@ export default function App() {
         return JSON.parse(saved);
       } catch (e) {}
     }
-    return FAMILY_MEMBERS[0];
+    const initialMembers = getLocalMembers();
+    return initialMembers[0] || DEFAULT_FAMILY_MEMBERS[0];
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -61,6 +67,16 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('nakupki_current_member', JSON.stringify(currentMember));
   }, [currentMember]);
+
+  // Naročnina na družinske člane
+  useEffect(() => {
+    const unsubMembers = subscribeFamilyMembers((updatedMembers) => {
+      setFamilyMembers(updatedMembers);
+    });
+    return () => {
+      if (typeof unsubMembers === 'function') unsubMembers();
+    };
+  }, []);
 
   // Naročnina na seznam artiklov in akcij
   useEffect(() => {
@@ -211,6 +227,11 @@ export default function App() {
     }
   };
 
+  const handleUpdateFamilyMembers = (updated) => {
+    setFamilyMembers(updated);
+    saveFamilyMembers(updated);
+  };
+
   return (
     <div className="min-h-screen bg-slate-100/70 pb-24 text-slate-800">
       
@@ -221,6 +242,7 @@ export default function App() {
         currentMember={currentMember}
         setCurrentMember={setCurrentMember}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        familyMembers={familyMembers}
         activeCount={activeItems.length}
         dealsCount={deals.length}
       />
@@ -386,6 +408,7 @@ export default function App() {
         onClose={() => setIsAddModalOpen(false)}
         onAdd={addShoppingItem}
         currentMember={currentMember}
+        familyMembers={familyMembers}
         deals={deals}
       />
 
@@ -401,10 +424,14 @@ export default function App() {
         />
       )}
 
-      {/* Modal za nastavitve & Firebase */}
+      {/* Modal za nastavitve & Uporabnike & Firebase */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        familyMembers={familyMembers}
+        onUpdateFamilyMembers={handleUpdateFamilyMembers}
+        currentMember={currentMember}
+        onSelectCurrentMember={setCurrentMember}
       />
 
     </div>

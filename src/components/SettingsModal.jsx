@@ -1,11 +1,44 @@
 import React, { useState } from 'react';
-import { X, Cloud, Key, Database, RefreshCw, Check, Smartphone, Info, HardDrive } from 'lucide-react';
+import { 
+  X, 
+  Cloud, 
+  Key, 
+  Database, 
+  RefreshCw, 
+  Check, 
+  Smartphone, 
+  HardDrive,
+  Users,
+  UserPlus,
+  Trash2,
+  Edit2,
+  Save,
+  CheckCircle2,
+  Shield,
+  Palette
+} from 'lucide-react';
 import { isFirebaseConfigured, saveFirebaseConfig } from '../firebase';
 import { seedDealsToFirestore } from '../services/shoppingService';
+import { AVAILABLE_AVATARS } from '../data/commonItems';
+
+const MEMBER_COLORS = [
+  '#10b981', // smaragdna
+  '#3b82f6', // modra
+  '#ec4899', // roza
+  '#f59e0b', // jantarna
+  '#8b5cf6', // vijolična
+  '#06b6d4', // cian
+  '#ef4444', // rdeča
+  '#64748b'  // siva
+];
 
 export default function SettingsModal({
   isOpen,
-  onClose
+  onClose,
+  familyMembers = [],
+  onUpdateFamilyMembers,
+  currentMember,
+  onSelectCurrentMember
 }) {
   const [apiKey, setApiKey] = useState('');
   const [projectId, setProjectId] = useState('');
@@ -14,8 +47,96 @@ export default function SettingsModal({
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
 
+  // Stanje za urejanje uporabnikov
+  const [editingMemberId, setEditingMemberId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editAvatar, setEditAvatar] = useState('👩');
+  const [editColor, setEditColor] = useState('#10b981');
+
+  // Stanje za dodajanje novega uporabnika
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newAvatar, setNewAvatar] = useState('🧑');
+  const [newColor, setNewColor] = useState('#3b82f6');
+
   if (!isOpen) return null;
 
+  // --- UPRAVLJANJE UPORABNIKOV ---
+  const handleStartEdit = (member) => {
+    setEditingMemberId(member.id);
+    setEditName(member.name);
+    setEditAvatar(member.avatar || '🧑');
+    setEditColor(member.color || '#10b981');
+  };
+
+  const handleSaveEdit = (memberId) => {
+    if (!editName.trim()) {
+      alert('Ime uporabnika ne sme biti prazno!');
+      return;
+    }
+
+    const updated = familyMembers.map(m => {
+      if (m.id === memberId) {
+        return {
+          ...m,
+          name: editName.trim(),
+          avatar: editAvatar,
+          color: editColor
+        };
+      }
+      return m;
+    });
+
+    onUpdateFamilyMembers(updated);
+    
+    // Če smo urejali trenutno izbranega člana, posodobi tudi njegovo stanje
+    if (currentMember?.id === memberId || currentMember?.name === editName) {
+      const updatedCurrent = updated.find(m => m.id === memberId);
+      if (updatedCurrent) onSelectCurrentMember(updatedCurrent);
+    }
+
+    setEditingMemberId(null);
+  };
+
+  const handleDeleteMember = (member) => {
+    if (familyMembers.length <= 1) {
+      alert('V aplikaciji mora ostati vsaj en družinski član!');
+      return;
+    }
+
+    if (confirm(`Ali ste prepričani, da želite izbrisati uporabnika "${member.name}"?`)) {
+      const updated = familyMembers.filter(m => m.id !== member.id);
+      onUpdateFamilyMembers(updated);
+
+      // Če je bil izbrisan trenutno aktiven član, preklopi na prvega
+      if (currentMember?.id === member.id) {
+        onSelectCurrentMember(updated[0]);
+      }
+    }
+  };
+
+  const handleAddNewMember = (e) => {
+    e?.preventDefault();
+    if (!newName.trim()) {
+      alert('Vnesite ime novega uporabnika!');
+      return;
+    }
+
+    const newMember = {
+      id: 'member_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      name: newName.trim(),
+      avatar: newAvatar,
+      color: newColor
+    };
+
+    const updated = [...familyMembers, newMember];
+    onUpdateFamilyMembers(updated);
+    
+    setNewName('');
+    setShowAddMember(false);
+  };
+
+  // --- FIREBASE IN OSTALE NASTAVITVE ---
   const handleSaveFirebaseConfig = (e) => {
     e.preventDefault();
     if (rawConfigJson.trim()) {
@@ -69,16 +190,16 @@ export default function SettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto no-scrollbar animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 py-4 border-b border-slate-100 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 py-3.5 border-b border-slate-100 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
               ⚙️
             </div>
-            <h2 className="text-base font-bold text-slate-900">Nastavitve & Sinhronizacija</h2>
+            <h2 className="text-base font-bold text-slate-900">Nastavitve aplikacije</h2>
           </div>
           <button
             onClick={onClose}
@@ -89,83 +210,368 @@ export default function SettingsModal({
         </div>
 
         <div className="p-5 space-y-6">
-          
-          {/* Trenutno stanje povezave */}
-          <div className={`p-4 rounded-2xl border ${
-            isFirebaseConfigured
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-              : 'bg-slate-50 border-slate-200 text-slate-800'
-          }`}>
-            <div className="flex items-center gap-2.5">
-              {isFirebaseConfigured ? (
-                <Cloud className="w-5 h-5 text-emerald-600" />
-              ) : (
-                <HardDrive className="w-5 h-5 text-slate-500" />
-              )}
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider">
-                  {isFirebaseConfigured ? 'Povezano z bazo Firestore' : 'Lokalni način (Brez povezave)'}
-                </h4>
-                <p className="text-xs opacity-80 mt-0.5">
-                  {isFirebaseConfigured 
-                    ? 'Sinhronizacija med vsemi družinskimi člani poteka v realnem času preko oblaka.'
-                    : 'Aplikacija deluje lokalno v brskalniku. Za skupno sinhronizacijo na več telefonih vnesite Firebase podatke spodaj.'}
-                </p>
+
+          {/* ======================================================== */}
+          {/* SEKCIJA 1: DRUŽINSKI ČLANI & UPORABNIKI */}
+          {/* ======================================================== */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Družinski člani & Uporabniki
+                </h3>
               </div>
+              
+              {!showAddMember && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddMember(true)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition border border-emerald-200"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Dodaj člana</span>
+                </button>
+              )}
             </div>
 
-            {isFirebaseConfigured && (
-              <button
-                onClick={handleResetToLocal}
-                className="mt-3 text-xs font-semibold text-rose-600 hover:underline"
-              >
-                Odstrani Firebase in preklopi nazaj na lokalni način
-              </button>
-            )}
-          </div>
-
-          {/* Obrazec za Firebase povezavo */}
-          <div>
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-emerald-600" />
-              <span>Firebase konfiguracija (Družinska sinhronizacija)</span>
-            </h3>
-
-            <p className="text-xs text-slate-500 mb-3">
-              Kopirajte vašo konfiguracijo iz Google Firebase konzole (Project Settings → Your apps → SDK setup/config):
+            <p className="text-[11px] text-slate-500">
+              Urejajte imena, spreminjajte ikone (emojije), dodajajte nove družinske člane ali odstranite tiste, ki jih ne potrebujete.
             </p>
 
-            <form onSubmit={handleSaveFirebaseConfig} className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Prilepite Firebase Config JSON:
-                </label>
-                <textarea
-                  rows="3"
-                  value={rawConfigJson}
-                  onChange={(e) => setRawConfigJson(e.target.value)}
-                  placeholder='{ "apiKey": "AIzaSy...", "projectId": "moja-druzina-123", ... }'
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                />
-              </div>
+            {/* Obrazec za dodajanje novega člana */}
+            {showAddMember && (
+              <form onSubmit={handleAddNewMember} className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                    <UserPlus className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Nov družinski član</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMember(false)}
+                    className="text-slate-400 hover:text-slate-600 p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
-              <button
-                type="submit"
-                className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-xs"
-              >
-                Shrani Firebase povezavo
-              </button>
-            </form>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Ime člana:
+                  </label>
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="npr. Luka, Teta Vesna, Matic..."
+                    autoFocus
+                    className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+
+                {/* Izbira avatarja */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Izberi avatar ikono:
+                  </label>
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                    {AVAILABLE_AVATARS.map((av) => (
+                      <button
+                        type="button"
+                        key={av}
+                        onClick={() => setNewAvatar(av)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 transition border ${
+                          newAvatar === av 
+                            ? 'bg-white border-emerald-600 ring-2 ring-emerald-500 shadow-xs' 
+                            : 'bg-white/80 border-slate-200 hover:bg-white'
+                        }`}
+                      >
+                        {av}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Izbira barve */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Ozadje značke:
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {MEMBER_COLORS.map((c) => (
+                      <button
+                        type="button"
+                        key={c}
+                        onClick={() => setNewColor(c)}
+                        className={`w-6 h-6 rounded-full transition ${
+                          newColor === c ? 'ring-2 ring-offset-2 ring-slate-700 scale-110' : 'hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMember(false)}
+                    className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50 transition"
+                  >
+                    Prekliči
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
+                  >
+                    Shrani člana
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Seznam trenutnih članov */}
+            <div className="space-y-2">
+              {familyMembers.map((member) => {
+                const isCurrent = currentMember?.id === member.id || currentMember?.name === member.name;
+                const isEditing = editingMemberId === member.id;
+
+                if (isEditing) {
+                  return (
+                    <div 
+                      key={member.id}
+                      className="p-3.5 rounded-2xl bg-slate-50 border-2 border-emerald-500 shadow-sm space-y-3 animate-in fade-in duration-150"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-800">Urejanje člana</span>
+                        <button
+                          onClick={() => setEditingMemberId(null)}
+                          className="text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                          placeholder="Ime člana"
+                        />
+                      </div>
+
+                      {/* Izbira avatarja pri urejanju */}
+                      <div>
+                        <span className="text-[10px] font-semibold text-slate-500 block mb-1">Avatar ikona:</span>
+                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                          {AVAILABLE_AVATARS.map((av) => (
+                            <button
+                              type="button"
+                              key={av}
+                              onClick={() => setEditAvatar(av)}
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0 border ${
+                                editAvatar === av 
+                                  ? 'bg-emerald-50 border-emerald-600 ring-2 ring-emerald-400' 
+                                  : 'bg-white border-slate-200'
+                              }`}
+                            >
+                              {av}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Izbira barve pri urejanju */}
+                      <div>
+                        <span className="text-[10px] font-semibold text-slate-500 block mb-1">Barva:</span>
+                        <div className="flex items-center gap-2">
+                          {MEMBER_COLORS.map((c) => (
+                            <button
+                              type="button"
+                              key={c}
+                              onClick={() => setEditColor(c)}
+                              className={`w-5 h-5 rounded-full transition ${
+                                editColor === c ? 'ring-2 ring-offset-2 ring-slate-800 scale-110' : ''
+                              }`}
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-200/60">
+                        <button
+                          type="button"
+                          onClick={() => setEditingMemberId(null)}
+                          className="px-2.5 py-1.5 rounded-lg text-slate-600 text-xs font-semibold hover:bg-slate-200/60"
+                        >
+                          Prekliči
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSaveEdit(member.id)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          <span>Shrani spremembe</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={member.id}
+                    className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
+                      isCurrent
+                        ? 'bg-emerald-50/70 border-emerald-300 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <div 
+                        className="w-9 h-9 rounded-2xl flex items-center justify-center text-lg shadow-xs shrink-0"
+                        style={{ backgroundColor: member.color ? `${member.color}20` : '#f1f5f9' }}
+                      >
+                        {member.avatar || '🧑'}
+                      </div>
+                      
+                      <div className="truncate">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-slate-900 truncate">
+                            {member.name}
+                          </span>
+                          {isCurrent && (
+                            <span className="px-1.5 py-0.2 rounded-md bg-emerald-200 text-emerald-900 text-[10px] font-bold">
+                              Aktivno
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {/* Gumb: Nastavi kot aktivnega */}
+                      {!isCurrent && (
+                        <button
+                          type="button"
+                          onClick={() => onSelectCurrentMember(member)}
+                          className="px-2 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition"
+                          title="Izberi tega člana za vnos"
+                        >
+                          Izberi
+                        </button>
+                      )}
+
+                      {/* Gumb: Uredi */}
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(member)}
+                        className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
+                        title="Uredi ime in avatar"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Gumb: Izbriši */}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMember(member)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                        title="Izbriši uporabnika"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Google Gemini API Ključ za AI branje katalogov */}
-          <div className="pt-2 border-t border-slate-100">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Key className="w-4 h-4 text-purple-600" />
-              <span>Google Gemini API Ključ (Zaledna AI obdelava)</span>
+          {/* ======================================================== */}
+          {/* SEKCIJA 2: POVEZAVA IN SINHRONIZACIJA (FIREBASE) */}
+          {/* ======================================================== */}
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Cloud className="w-4 h-4 text-emerald-600" />
+              <span>Sinhronizacija med napravami</span>
             </h3>
-            <p className="text-xs text-slate-500 mb-2">
-              Uporablja se v skripti <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px]">scripts/catalog-ingest.js</code> za prebiranje tedenskih PDF katalogov trgovcev.
+
+            {/* Trenutno stanje */}
+            <div className={`p-3.5 rounded-2xl border ${
+              isFirebaseConfigured
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                : 'bg-slate-50 border-slate-200 text-slate-800'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                {isFirebaseConfigured ? (
+                  <Cloud className="w-5 h-5 text-emerald-600 shrink-0" />
+                ) : (
+                  <HardDrive className="w-5 h-5 text-slate-500 shrink-0" />
+                )}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider">
+                    {isFirebaseConfigured ? 'Povezano z bazo Firestore' : 'Lokalni način (Brez strežnika)'}
+                  </h4>
+                  <p className="text-[11px] opacity-80 mt-0.5">
+                    {isFirebaseConfigured 
+                      ? 'Posodobitve se v živo prenašajo na telefone vseh družinskih članov.'
+                      : 'Podatki se shranjujejo lokalno v brskalniku. Za povezavo telefonov lahko kadarkoli vnesete Firebase.'}
+                  </p>
+                </div>
+              </div>
+
+              {isFirebaseConfigured && (
+                <button
+                  onClick={handleResetToLocal}
+                  className="mt-2 text-[11px] font-semibold text-rose-600 hover:underline"
+                >
+                  Odstrani Firebase in preklopi nazaj na lokalni način
+                </button>
+              )}
+            </div>
+
+            {/* Obrazec za Firebase konfiguracijo */}
+            <div>
+              <form onSubmit={handleSaveFirebaseConfig} className="space-y-2">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Prilepite Firebase Config JSON:
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={rawConfigJson}
+                    onChange={(e) => setRawConfigJson(e.target.value)}
+                    placeholder='{ "apiKey": "AIzaSy...", "projectId": "moja-druzina-123", ... }'
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition"
+                >
+                  Shrani Firebase povezavo
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* SEKCIJA 3: GOOGLE GEMINI AI ZA KATALOGE */}
+          {/* ======================================================== */}
+          <div className="pt-4 border-t border-slate-100">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center gap-2">
+              <Key className="w-4 h-4 text-purple-600" />
+              <span>Google Gemini API Ključ</span>
+            </h3>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Za avtomatsko branje tedenskih letakov s skripto <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px]">npm run ingest</code>.
             </p>
             <div className="flex items-center gap-2">
               <input
@@ -173,54 +579,29 @@ export default function SettingsModal({
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
                 placeholder="AIzaSy..."
-                className="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
               />
               <button
                 onClick={handleSaveGeminiKey}
-                className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition"
+                className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition"
               >
                 Shrani
               </button>
             </div>
           </div>
 
-          {/* Baza akcij v Firestore */}
-          {isFirebaseConfigured && (
-            <div className="pt-2 border-t border-slate-100">
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Database className="w-4 h-4 text-emerald-600" />
-                <span>Naloži vzorčne akcije v Firestore</span>
-              </h3>
-              <p className="text-xs text-slate-500 mb-2">
-                Če je vaša zbirka <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px]">catalog_deals</code> prazna, lahko z enim klikom naložite aktualne vzorce za Spar, Lidl, Hofer, Mercator, dm in Müller.
-              </p>
-              <button
-                onClick={handleSeedDeals}
-                disabled={isSeeding}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs transition"
-              >
-                {isSeeding ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : seedSuccess ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                ) : (
-                  <Database className="w-3.5 h-3.5" />
-                )}
-                <span>{seedSuccess ? 'Uspešno naloženo v Firestore!' : 'Naloži testne akcije v bazo'}</span>
-              </button>
-            </div>
-          )}
-
-          {/* Navodila za namestitev na mobilni telefon (PWA) */}
-          <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-amber-900">
+          {/* ======================================================== */}
+          {/* SEKCIJA 4: PWA NAVODILA */}
+          {/* ======================================================== */}
+          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-amber-900">
             <div className="flex items-start gap-2.5">
               <Smartphone className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold">Uporaba kot mobilna aplikacija (PWA)</h4>
+                <h4 className="text-xs font-bold">Namestitev na telefon (PWA)</h4>
                 <p className="text-[11px] text-amber-800/90 mt-1 leading-relaxed">
-                  Za najboljšo izkušnjo v brskalniku na telefonu izberite:
-                  <br />• <strong>iOS Safari:</strong> Delite (Share) → <em>Dodaj na domaci zaslon (Add to Home Screen)</em>
-                  <br />• <strong>Android Chrome:</strong> Tri pikice (Meni) → <em>Namesti aplikacijo (Install App)</em>
+                  Aplikacijo lahko namestite kot domačo ikono:
+                  <br />• <strong>iOS Safari:</strong> Deli → <em>Dodaj na začetni zaslon</em>
+                  <br />• <strong>Android Chrome:</strong> Meni (3 pikice) → <em>Namesti aplikacijo</em>
                 </p>
               </div>
             </div>

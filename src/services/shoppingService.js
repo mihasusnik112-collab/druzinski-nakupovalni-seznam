@@ -14,9 +14,11 @@ import {
 import { db, isFirebaseConfigured } from '../firebase';
 import { DEFAULT_CATALOG_DEALS } from '../data/defaultDeals';
 import { INITIAL_CATEGORIES } from '../data/initialCategories';
+import { DEFAULT_FAMILY_MEMBERS } from '../data/commonItems';
 
 const LOCAL_STORAGE_ITEMS_KEY = 'nakupki_items_v1';
 const LOCAL_STORAGE_DEALS_KEY = 'nakupki_deals_v1';
+const LOCAL_STORAGE_MEMBERS_KEY = 'nakupki_members_v1';
 const broadcastChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('nakupki_sync_bus') : null;
 
 // Začetni vzorčni artikli za prijeten prvi vtis
@@ -331,4 +333,90 @@ export async function seedDealsToFirestore() {
     console.error('Napaka pri nalaganju začetnih akcij v Firestore:', e);
     return false;
   }
+}
+
+/**
+ * Pridobi družinske člane iz lokalne shrambe
+ */
+export function getLocalMembers() {
+  const data = localStorage.getItem(LOCAL_STORAGE_MEMBERS_KEY);
+  if (!data) {
+    localStorage.setItem(LOCAL_STORAGE_MEMBERS_KEY, JSON.stringify(DEFAULT_FAMILY_MEMBERS));
+    return DEFAULT_FAMILY_MEMBERS;
+  }
+  try {
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_FAMILY_MEMBERS;
+  } catch {
+    return DEFAULT_FAMILY_MEMBERS;
+  }
+}
+
+/**
+ * Shrani posodobljene člane
+ */
+export function saveFamilyMembers(members) {
+  localStorage.setItem(LOCAL_STORAGE_MEMBERS_KEY, JSON.stringify(members));
+  if (broadcastChannel) {
+    broadcastChannel.postMessage({ type: 'MEMBERS_UPDATED', members });
+  }
+
+  // Če je povezan Firestore, posodobi tudi v Firestore
+  if (isFirebaseConfigured && db) {
+    try {
+      setDoc(doc(db, 'settings', 'family_members'), { members }, { merge: true });
+    } catch (e) {
+      console.warn('Napaka pri shranjevanju članov v Firestore:', e);
+    }
+  }
+}
+
+/**
+ * Naročanje na posodobitve družinskih članov
+ */
+export function subscribeFamilyMembers(callback) {
+  if (isFirebaseConfigured && db) {
+    try {
+      const unsub = onSnapshot(doc(db, 'settings', 'family_members'), (snap) => {
+        if (snap.exists() && Array.isArray(snap.data()?.members)) {
+          const members = snap.data().members;
+          localStorage.setItem(LOCAL_STORAGE_MEMBERS_KEY, JSON.stringify(members));
+          callback(members);
+        } else {
+          callback(getLocalMembers());
+        }
+      }, () => {
+        callback(getLocalMembers());
+      });
+      return unsub;
+    } catch (e) {
+      console.warn('Firestore poslušanje članov napaka:', e);
+    }
+  }
+
+  callback(getLocalMembers());
+
+  const handleBroadcast = (event) => {
+    if (event.data?.type === 'MEMBERS_UPDATED') {
+      callback(event.data.members);
+    }
+  };
+
+  const handleStorage = (event) => {
+    if (event.key === LOCAL_STORAGE_MEMBERS_KEY) {
+      callback(getLocalMembers());
+    }
+  };
+
+  if (broadcastChannel) {
+    broadcastChannel.addEventListener('message', handleBroadcast);
+  }
+  window.addEventListener('storage', handleStorage);
+
+  return () => {
+    if (broadcastChannel) {
+      broadcastChannel.removeEventListener('message', handleBroadcast);
+    }
+    window.removeEventListener('storage', handleStorage);
+  };
 }

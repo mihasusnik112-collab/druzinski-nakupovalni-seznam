@@ -9,10 +9,12 @@ export default function Navbar({
   currentMember, 
   setCurrentMember, 
   onOpenSettings,
+  familyMembers = [],
   activeCount = 0,
   dealsCount = 0
 }) {
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const membersList = familyMembers.length > 0 ? familyMembers : FAMILY_MEMBERS;
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -69,9 +71,9 @@ export default function Navbar({
                   <div className="px-3 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                     Kdo dodaja danes?
                   </div>
-                  {FAMILY_MEMBERS.map((member) => (
+                  {membersList.map((member) => (
                     <button
-                      key={member.name}
+                      key={member.id || member.name}
                       onClick={() => setCurrentMember(member)}
                       className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition ${
                         currentMember.name === member.name 
@@ -88,6 +90,14 @@ export default function Navbar({
                       )}
                     </button>
                   ))}
+                  <div className="pt-1 mt-1 border-t border-slate-100 px-2">
+                    <button
+                      onClick={onOpenSettings}
+                      className="w-full py-1 text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold text-center block rounded hover:bg-emerald-50 transition"
+                    >
+                      + Uredi družinske člane
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
