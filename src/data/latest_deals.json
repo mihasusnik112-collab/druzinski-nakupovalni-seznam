@@ -1,0 +1,80 @@
+[
+  {
+    "id": "deal-spar-1791480070508-of9v",
+    "store": "Spar",
+    "sourceCatalogUrl": "https://www.spar.si/katalogi",
+    "productName": "Spar Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  },
+  {
+    "id": "deal-lidl-1791480070509-7u2f",
+    "store": "Lidl",
+    "sourceCatalogUrl": "https://www.lidl.si/letak",
+    "productName": "Lidl Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  },
+  {
+    "id": "deal-hofer-1791480070509-d471",
+    "store": "Hofer",
+    "sourceCatalogUrl": "https://www.hofer.si/letak",
+    "productName": "Hofer Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  },
+  {
+    "id": "deal-mercator-1791480070509-bo8c",
+    "store": "Mercator",
+    "sourceCatalogUrl": "https://www.mercator.si/katalogi",
+    "productName": "Mercator Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  },
+  {
+    "id": "deal-dm-1791480070509-olen",
+    "store": "dm",
+    "sourceCatalogUrl": "https://www.dm.si/katalog",
+    "productName": "dm Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  },
+  {
+    "id": "deal-müller-1791480070509-tnya",
+    "store": "Müller",
+    "sourceCatalogUrl": "https://www.mueller.si/letak",
+    "productName": "Müller Izbor v akciji",
+    "normalizedKeyword": "akcija",
+    "category": "shramba",
+    "discountPrice": 1.99,
+    "regularPrice": 2.99,
+    "discountPercentage": "-33%",
+    "unit": "kos",
+    "validUntil": "2026-10-15"
+  }
+]

@@ -1,0 +1,25 @@
+# Odvisnosti
+node_modules/
+.pnp
+.pnp.js
+
+# Okoljske spremenljivke in skrivnosti
+.env
+.env.local
+.env.production
+serviceAccountKey.json
+
+# Gradnja
+dist/
+dist-ssr/
+*.local
+
+# Dnevniki in sistemske datoteke
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Urejevalniki
+.vscode/
+.idea/
