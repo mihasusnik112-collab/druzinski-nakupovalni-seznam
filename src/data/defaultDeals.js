@@ -11,7 +11,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '250 g',
     validFrom: '2026-10-07',
     validTo: '2026-10-14',
-    sourceCatalogUrl: 'https://www.spar.si/katalogi',
+    sourceCatalogUrl: 'https://www.letakonosa.si/spar/',
     highlight: 'Super cena'
   },
   {
@@ -56,7 +56,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '1 l',
     validFrom: '2026-10-07',
     validTo: '2026-10-13',
-    sourceCatalogUrl: 'https://www.spar.si/katalogi',
+    sourceCatalogUrl: 'https://www.letakonosa.si/spar/',
     highlight: 'Slovenska kakovost'
   },
   {
@@ -116,7 +116,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '250 g',
     validFrom: '2026-10-07',
     validTo: '2026-10-13',
-    sourceCatalogUrl: 'https://www.spar.si/katalogi',
+    sourceCatalogUrl: 'https://www.letakonosa.si/spar/',
     highlight: 'Mega cena'
   },
   {
@@ -191,7 +191,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '370 g',
     validFrom: '2026-10-07',
     validTo: '2026-10-13',
-    sourceCatalogUrl: 'https://www.spar.si/katalogi',
+    sourceCatalogUrl: 'https://www.letakonosa.si/spar/',
     highlight: 'Spar klub kupon'
   },
   {

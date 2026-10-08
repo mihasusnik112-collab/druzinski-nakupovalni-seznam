@@ -25,7 +25,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API
 const CATALOG_SOURCES = [
   {
     store: 'Spar',
-    url: 'https://www.spar.si/katalogi',
+    url: 'https://www.spar.si/promocije-in-projekti',
     samplePageText: `Spar letak: S-Budget Maslo 250g samo 1.69 EUR (redna cena 2.29 EUR, popust -26%). Alpsko mleko 3.5% 1L 1.15 EUR (-28%). Barcaffe mleta kava 200g + 50g gratis 2.79 EUR. Velja do 2026-10-14.`
   },
   {
