@@ -38,7 +38,10 @@ export default function SettingsModal({
   familyMembers = [],
   onUpdateFamilyMembers,
   currentMember,
-  onSelectCurrentMember
+  onSelectCurrentMember,
+  activeFamily = null,
+  onOpenOnboarding = null,
+  onOpenFamilyManager = null
 }) {
   const [apiKey, setApiKey] = useState('');
   const [projectId, setProjectId] = useState('');
@@ -210,6 +213,59 @@ export default function SettingsModal({
         </div>
 
         <div className="p-5 space-y-6">
+
+          {/* ======================================================== */}
+          {/* SEKCIJA 0: DRUŽINSKI PROFIL & MULTI-TENANCY */}
+          {/* ======================================================== */}
+          {activeFamily && (
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-2xs">
+                    🏠
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
+                      Družinski profil & Koda
+                    </h3>
+                    <p className="text-sm font-bold text-slate-900 leading-tight">
+                      {activeFamily.familyName}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-xl bg-white border border-emerald-200 font-mono text-xs font-bold text-emerald-900">
+                  {activeFamily.familyId}
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                {onOpenOnboarding && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenOnboarding();
+                    }}
+                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
+                  >
+                    <span>✨ Zaženi spoznavni vprašalnik</span>
+                  </button>
+                )}
+                {onOpenFamilyManager && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenFamilyManager();
+                    }}
+                    className="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <span>Preklopi družino</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ======================================================== */}
           {/* SEKCIJA 1: DRUŽINSKI ČLANI & UPORABNIKI */}

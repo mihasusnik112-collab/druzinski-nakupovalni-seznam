@@ -15,8 +15,9 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { STORE_INFO, INITIAL_CATEGORIES } from '../data/initialCategories';
+import { STORE_INFO, STORES_LIST } from '../data/stores';
 import { STORE_FLYERS } from '../data/flyersData';
+import StoreBadge from './StoreBadge';
 
 export default function DealsView({
   deals = [],
@@ -33,7 +34,7 @@ export default function DealsView({
   const [scanStep, setScanStep] = useState(0);
   const [scanSuccessMessage, setScanSuccessMessage] = useState('');
 
-  const stores = ['Spar', 'Lidl', 'Hofer', 'Mercator', 'dm', 'Müller'];
+  const stores = STORES_LIST.map(s => s.shortName);
 
   // Filtrirani letaki glede na izbranega trgovca
   const filteredFlyers = useMemo(() => {
@@ -186,36 +187,35 @@ export default function DealsView({
         </button>
       </div>
 
-      {/* Filter po trgovcih (Spar, Lidl, Hofer, Mercator, dm, Müller) */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      {/* Filter po trgovcih */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 scroll-smooth">
         <button
           onClick={() => setSelectedStore('all')}
-          className={`flex flex-col items-center justify-center p-2 rounded-2xl border transition-all text-xs font-semibold ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border transition-all text-xs font-bold shrink-0 cursor-pointer ${
             selectedStore === 'all'
               ? 'bg-slate-900 text-white border-slate-900 shadow-md'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <span className="text-base mb-0.5">🏬</span>
-          <span className="text-[11px]">Vsi trgovci</span>
+          <span>🏬</span>
+          <span>Vsi trgovci</span>
         </button>
 
         {stores.map((store) => {
-          const info = STORE_INFO[store] || {};
           const isSelected = selectedStore === store;
 
           return (
             <button
               key={store}
               onClick={() => setSelectedStore(isSelected ? 'all' : store)}
-              className={`flex flex-col items-center justify-center p-2 rounded-2xl border transition-all text-xs font-semibold ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl border transition-all text-xs font-bold shrink-0 cursor-pointer ${
                 isSelected
-                  ? `${info.color} text-white border-transparent shadow-md ring-2 ring-offset-1 ring-slate-400`
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md ring-2 ring-emerald-500/20'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <span className="text-base mb-0.5">{info.logo || '🛒'}</span>
-              <span className="text-[11px]">{store}</span>
+              <StoreBadge storeName={store} size="xs" />
+              <span>{store}</span>
             </button>
           );
         })}
@@ -247,7 +247,7 @@ export default function DealsView({
                   <div className={`p-4 bg-gradient-to-r ${flyer.color} text-white relative`}>
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-xs text-white">
-                        <span>{flyer.icon}</span>
+                        <StoreBadge storeName={flyer.store} size="xs" />
                         <span>{flyer.store}</span>
                       </span>
 

@@ -88,5 +88,50 @@ export const STORE_FLYERS = [
     tagColor: 'bg-orange-100 text-orange-800',
     icon: '🟠',
     dealsCountEstimate: '20+ akcij'
+  },
+  {
+    id: 'flyer-tus',
+    store: 'Tuš',
+    title: 'Tuš Tedenski katalog & Tuš klub',
+    subtitle: 'Slovenska hrana, Tuš klub zvezdice in znižanja',
+    validity: 'Sreda – torek',
+    badge: 'Tuš klub',
+    catalogUrl: 'https://www.letakonosa.si/tus/',
+    officialUrl: 'https://www.tus.si/katalogi/',
+    color: 'from-green-600 to-emerald-700',
+    borderColor: 'border-green-200',
+    tagColor: 'bg-green-100 text-green-800',
+    icon: '🟢',
+    dealsCountEstimate: '35+ akcij'
+  },
+  {
+    id: 'flyer-eleclerc',
+    store: 'E.Leclerc',
+    title: 'E.Leclerc Tedenski katalog',
+    subtitle: 'Francoske dobrote, boni na kartico in velika izbira',
+    validity: 'Sreda – sobota',
+    badge: 'Leclerc bon',
+    catalogUrl: 'https://www.letakonosa.si/e-leclerc/',
+    officialUrl: 'https://www.e-leclerc.si/katalogi/',
+    color: 'from-blue-700 to-sky-800',
+    borderColor: 'border-blue-200',
+    tagColor: 'bg-blue-100 text-blue-800',
+    icon: '🔵',
+    dealsCountEstimate: '45+ akcij'
+  },
+  {
+    id: 'flyer-eurospin',
+    store: 'Eurospin',
+    title: 'Eurospin Pametni nakup',
+    subtitle: 'Diskontne cene, italijanske testenine in sveže meso',
+    validity: 'Četrtek – sreda',
+    badge: 'Pametni nakup',
+    catalogUrl: 'https://www.letakonosa.si/eurospin/',
+    officialUrl: 'https://www.eurospin.si/katalogi/',
+    color: 'from-amber-500 to-yellow-600',
+    borderColor: 'border-amber-200',
+    tagColor: 'bg-amber-100 text-amber-900',
+    icon: '🟡',
+    dealsCountEstimate: '30+ akcij'
   }
 ];

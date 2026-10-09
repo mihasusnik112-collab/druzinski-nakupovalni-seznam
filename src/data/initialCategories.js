@@ -91,53 +91,5 @@ export const INITIAL_CATEGORIES = [
   }
 ];
 
-export const STORE_INFO = {
-  Spar: {
-    name: 'Spar / Interspar',
-    color: 'bg-red-600',
-    textColor: 'text-red-600',
-    badgeColor: 'bg-red-100 text-red-800 border-red-300',
-    logo: '🔴',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Spar-logo.svg/320px-Spar-logo.svg.png'
-  },
-  Lidl: {
-    name: 'Lidl',
-    color: 'bg-blue-600',
-    textColor: 'text-blue-600',
-    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-    logo: '🔵',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Lidl-Logo.svg/320px-Lidl-Logo.svg.png'
-  },
-  Hofer: {
-    name: 'Hofer',
-    color: 'bg-sky-700',
-    textColor: 'text-sky-700',
-    badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
-    logo: '🔷',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hofer_Logo.svg/320px-Hofer_Logo.svg.png'
-  },
-  Mercator: {
-    name: 'Mercator',
-    color: 'bg-red-700',
-    textColor: 'text-red-700',
-    badgeColor: 'bg-rose-100 text-rose-800 border-rose-300',
-    logo: '🔴',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Mercator_logo.svg/320px-Mercator_logo.svg.png'
-  },
-  dm: {
-    name: 'dm drogerie markt',
-    color: 'bg-amber-600',
-    textColor: 'text-amber-600',
-    badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-    logo: '🟡',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/320px-Dm_Logo.svg.png'
-  },
-  Müller: {
-    name: 'Müller',
-    color: 'bg-orange-600',
-    textColor: 'text-orange-600',
-    badgeColor: 'bg-orange-100 text-orange-800 border-orange-300',
-    logo: '🟠',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Mueller_Drogerie_logo.svg/320px-Mueller_Drogerie_logo.svg.png'
-  }
-};
+// Re-export centralnega registra trgovin
+export { STORE_INFO, STORES_LIST, getStoreMeta } from './stores';

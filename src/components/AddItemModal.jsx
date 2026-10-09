@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Plus, Sparkles, Flame, Check, Tag } from 'lucide-react';
+import { X, Plus, Sparkles, Flame, Check, Tag, Layers } from 'lucide-react';
 import { INITIAL_CATEGORIES } from '../data/initialCategories';
-import { COMMON_ITEMS, FAMILY_MEMBERS } from '../data/commonItems';
+import { COMMON_ITEMS, DEFAULT_FAMILY_MEMBERS } from '../data/commonItems';
 import { findBestDeal } from '../utils/fuzzyMatch';
 
 export default function AddItemModal({
@@ -12,23 +12,26 @@ export default function AddItemModal({
   familyMembers = [],
   deals = []
 }) {
-  const membersList = familyMembers.length > 0 ? familyMembers : FAMILY_MEMBERS;
+  const membersList = familyMembers.length > 0 ? familyMembers : DEFAULT_FAMILY_MEMBERS;
+  
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('mlecno');
   const [quantity, setQuantity] = useState('1 kos');
-  const [addedBy, setAddedBy] = useState(currentMember?.name || 'Mami');
+  const [selectedMemberId, setSelectedMemberId] = useState(currentMember?.id || membersList[0]?.id);
+  const [selectedTier, setSelectedTier] = useState('budget');
 
   useEffect(() => {
-    if (currentMember?.name) {
-      setAddedBy(currentMember.name);
+    if (currentMember?.id) {
+      setSelectedMemberId(currentMember.id);
+      setSelectedTier(currentMember.preference || 'budget');
     }
-  }, [currentMember]);
+  }, [currentMember, isOpen]);
 
   // Pametno zaznavanje akcije v živo med tipkanjem
   const liveDealResult = useMemo(() => {
     if (!title.trim() || title.trim().length < 2) return null;
-    return findBestDeal(title, deals);
-  }, [title, deals]);
+    return findBestDeal(title, deals, currentMember?.preference || 'best_value');
+  }, [title, deals, currentMember]);
 
   // Filtrirani predlogi pogostih artiklov glede na vnos
   const filteredSuggestions = useMemo(() => {
@@ -43,16 +46,33 @@ export default function AddItemModal({
 
   if (!isOpen) return null;
 
+  const selectedMember = membersList.find(m => m.id === selectedMemberId) || currentMember || membersList[0];
+
   const handleSubmit = (e) => {
     e?.preventDefault();
     if (!title.trim()) return;
+
+    // Izberi deal glede na izbran tier
+    let chosenDeal = liveDealResult?.bestDeal;
+    if (liveDealResult?.tieredDeals) {
+      if (selectedTier === 'budget' && liveDealResult.tieredDeals.budget) {
+        chosenDeal = liveDealResult.tieredDeals.budget;
+      } else if (selectedTier === 'brand' && liveDealResult.tieredDeals.brand) {
+        chosenDeal = liveDealResult.tieredDeals.brand;
+      } else if (selectedTier === 'premium_local' && liveDealResult.tieredDeals.premium_local) {
+        chosenDeal = liveDealResult.tieredDeals.premium_local;
+      }
+    }
 
     onAdd({
       title: title.trim(),
       category,
       quantity: quantity.trim() || '1 kos',
-      addedBy,
-      matchedDealId: liveDealResult?.bestDeal?.id || null
+      addedByUserId: selectedMember?.id,
+      addedByName: selectedMember?.name,
+      addedByAvatar: selectedMember?.avatar,
+      selectedTier: selectedTier || 'budget',
+      matchedDealId: chosenDeal?.id || null
     });
 
     setTitle('');
@@ -104,32 +124,68 @@ export default function AddItemModal({
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="npr. Mleko, Maslo, Banane..."
+              placeholder="npr. Mleko, Maslo, Kruh..."
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition shadow-xs"
             />
 
-            {/* Zaznana akcija v živo */}
-            {liveDealResult?.bestDeal && (
-              <div className="mt-2.5 p-2.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-300 flex items-center justify-between text-xs animate-in fade-in duration-150">
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-rose-500 fill-rose-500 shrink-0" />
-                  <div>
-                    <span className="font-semibold text-slate-800">
-                      Najdena akcija pri {liveDealResult.bestDeal.store}:
-                    </span>
-                    <span className="ml-1 text-slate-600 truncate">
-                      {liveDealResult.bestDeal.productName}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="font-extrabold text-emerald-700 text-sm">
-                    {liveDealResult.bestDeal.discountPrice?.toFixed(2)} €
+            {/* Zaznana akcija in izbira kakovostnega razreda v živo */}
+            {liveDealResult?.tieredDeals && (liveDealResult.tieredDeals.budget || liveDealResult.tieredDeals.brand || liveDealResult.tieredDeals.premium_local) && (
+              <div className="mt-2.5 p-3 rounded-2xl bg-slate-50 border border-emerald-200 space-y-2 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between text-[11px] text-slate-600">
+                  <span className="font-bold flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                    <span>Zaznane opcije v katalogih:</span>
                   </span>
-                  {liveDealResult.bestDeal.discountPercentage && (
-                    <span className="ml-1 px-1.5 py-0.2 rounded-md bg-rose-500 text-white font-bold text-[10px]">
-                      {liveDealResult.bestDeal.discountPercentage}
-                    </span>
+                  <span className="text-[10px] text-slate-400">Izberi razred</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                  {liveDealResult.tieredDeals.budget && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTier('budget')}
+                      className={`p-2 rounded-xl text-left border transition text-xs ${
+                        selectedTier === 'budget'
+                          ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs'
+                          : 'bg-white border-slate-200 text-slate-700 hover:bg-emerald-50'
+                      }`}
+                    >
+                      <div className="text-[10px] opacity-80">🟢 Najceneje</div>
+                      <div className="font-extrabold truncate">{liveDealResult.tieredDeals.budget.store}</div>
+                      <div className="text-[10px]">{liveDealResult.tieredDeals.budget.unitPriceFormatted || `${liveDealResult.tieredDeals.budget.discountPrice} €`}</div>
+                    </button>
+                  )}
+
+                  {liveDealResult.tieredDeals.brand && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTier('brand')}
+                      className={`p-2 rounded-xl text-left border transition text-xs ${
+                        selectedTier === 'brand'
+                          ? 'bg-amber-500 text-white border-amber-500 font-bold shadow-xs'
+                          : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50'
+                      }`}
+                    >
+                      <div className="text-[10px] opacity-80">🟡 Znamka</div>
+                      <div className="font-extrabold truncate">{liveDealResult.tieredDeals.brand.store}</div>
+                      <div className="text-[10px]">{liveDealResult.tieredDeals.brand.unitPriceFormatted || `${liveDealResult.tieredDeals.brand.discountPrice} €`}</div>
+                    </button>
+                  )}
+
+                  {liveDealResult.tieredDeals.premium_local && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTier('premium_local')}
+                      className={`p-2 rounded-xl text-left border transition text-xs ${
+                        selectedTier === 'premium_local'
+                          ? 'bg-teal-700 text-white border-teal-700 font-bold shadow-xs'
+                          : 'bg-white border-slate-200 text-slate-700 hover:bg-teal-50'
+                      }`}
+                    >
+                      <div className="text-[10px] opacity-80">🌿 Eko / Lokalno</div>
+                      <div className="font-extrabold truncate">{liveDealResult.tieredDeals.premium_local.store}</div>
+                      <div className="text-[10px]">{liveDealResult.tieredDeals.premium_local.unitPriceFormatted || `${liveDealResult.tieredDeals.premium_local.discountPrice} €`}</div>
+                    </button>
                   )}
                 </div>
               </div>
@@ -221,20 +277,20 @@ export default function AddItemModal({
             </div>
           </div>
 
-          {/* Kdo dodaja */}
+          {/* Kdo dodaja (Družinski član) */}
           <div className="pt-1">
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
-              Družinski član (kdo dodaja)
+              Kdo dodaja artikel
             </label>
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {membersList.map((m) => (
                 <button
                   type="button"
-                  key={m.id || m.name}
-                  onClick={() => setAddedBy(m.name)}
+                  key={m.id}
+                  onClick={() => setSelectedMemberId(m.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
-                    addedBy === m.name
-                      ? 'bg-emerald-100 text-emerald-900 border-emerald-400 font-bold'
+                    selectedMemberId === m.id
+                      ? 'bg-emerald-100 text-emerald-900 border-emerald-400 font-bold shadow-2xs'
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
                 >

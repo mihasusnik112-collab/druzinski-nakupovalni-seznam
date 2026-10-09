@@ -37,23 +37,69 @@ export function normalizeText(text) {
 }
 
 /**
- * Poišče vse akcije in najboljšo akcijo za dani artikel
- * @param {string} itemTitle - Naziv artikla (npr. "Maslo 250g" ali "Banane")
- * @param {Array} catalogDeals - Seznam akcij iz zbirke catalog_deals
- * @returns {{ bestDeal: object|null, matchingDeals: Array }}
+ * Pomožna funkcija za izračun in formatiranje cene na enoto, če ta manjka
  */
-export function findBestDeal(itemTitle, catalogDeals = []) {
+export function getFormattedUnitPrice(deal) {
+  if (deal.unitPriceFormatted) return deal.unitPriceFormatted;
+  if (!deal.discountPrice) return '';
+
+  const unit = (deal.unit || '').toLowerCase();
+  
+  // Preveri kilograme
+  if (unit.includes('kg')) {
+    const num = parseFloat(unit) || 1;
+    return `${(deal.discountPrice / num).toFixed(2).replace('.', ',')} € / kg`;
+  }
+  // Preveri grame
+  if (unit.includes('g') && !unit.includes('kg')) {
+    const grams = parseFloat(unit) || 100;
+    const perKg = (deal.discountPrice / (grams / 1000));
+    return `${perKg.toFixed(2).replace('.', ',')} € / kg`;
+  }
+  // Preveri litre
+  if (unit.includes('l') || unit.includes('liter')) {
+    const num = parseFloat(unit) || 1;
+    return `${(deal.discountPrice / num).toFixed(2).replace('.', ',')} € / l`;
+  }
+  // Preveri pranja
+  if (unit.includes('pranj')) {
+    const num = parseFloat(unit) || 1;
+    return `${(deal.discountPrice / num).toFixed(2).replace('.', ',')} € / pranje`;
+  }
+  // Kos
+  return `${deal.discountPrice.toFixed(2).replace('.', ',')} € / kos`;
+}
+
+/**
+ * Poišče vse akcije, najboljšo akcijo ter razvrsti ugodnosti po 3 kakovostnih razredih:
+ * - budget (Diskont / lastna znamka)
+ * - brand (Priznana blagovna znamka / Best Value)
+ * - premium_local (Bio / Lokalno / Eko / Certificirano)
+ * 
+ * @param {string} itemTitle - Naziv artikla (npr. "Maslo 250g" ali "Mleko")
+ * @param {Array} catalogDeals - Seznam akcij iz zbirke catalog_deals
+ * @param {string} userPreference - Privzeta preferenca uporabnika ("cheapest" | "best_value" | "premium_local")
+ * @returns {{ bestDeal: object|null, matchingDeals: Array, tieredDeals: { budget: object|null, brand: object|null, premium_local: object|null } }}
+ */
+export function findBestDeal(itemTitle, catalogDeals = [], userPreference = 'best_value') {
   if (!itemTitle || !catalogDeals || catalogDeals.length === 0) {
-    return { bestDeal: null, matchingDeals: [] };
+    return {
+      bestDeal: null,
+      matchingDeals: [],
+      tieredDeals: { budget: null, brand: null, premium_local: null }
+    };
   }
 
   const cleanTitle = normalizeText(itemTitle);
   if (!cleanTitle) {
-    return { bestDeal: null, matchingDeals: [] };
+    return {
+      bestDeal: null,
+      matchingDeals: [],
+      tieredDeals: { budget: null, brand: null, premium_local: null }
+    };
   }
 
   const titleWords = cleanTitle.split(' ').filter(w => w.length >= 3);
-
   const matched = [];
 
   for (const deal of catalogDeals) {
@@ -85,27 +131,59 @@ export function findBestDeal(itemTitle, catalogDeals = []) {
     if (score >= 30) {
       matched.push({
         ...deal,
+        unitPriceFormatted: getFormattedUnitPrice(deal),
         matchScore: score
       });
     }
   }
 
   if (matched.length === 0) {
-    return { bestDeal: null, matchingDeals: [] };
+    return {
+      bestDeal: null,
+      matchingDeals: [],
+      tieredDeals: { budget: null, brand: null, premium_local: null }
+    };
   }
 
   // Razvrsti po rezultatu ujemanja, nato po najvišjem popustu oz. najnižji ceni
   matched.sort((a, b) => {
-    // Če je bistvena razlika v ujemanju, prednost bolj natančnemu
     if (Math.abs(a.matchScore - b.matchScore) >= 40) {
       return b.matchScore - a.matchScore;
     }
-    // Sicer primerjaj ceno
     return (a.discountPrice || 0) - (b.discountPrice || 0);
   });
 
+  // Razvrsti v 3 kakovostne razrede
+  const tieredDeals = {
+    budget: null,
+    brand: null,
+    premium_local: null
+  };
+
+  for (const deal of matched) {
+    const tier = deal.tier || 'budget';
+    if (tier === 'budget' && !tieredDeals.budget) {
+      tieredDeals.budget = deal;
+    } else if (tier === 'brand' && !tieredDeals.brand) {
+      tieredDeals.brand = deal;
+    } else if (tier === 'premium_local' && !tieredDeals.premium_local) {
+      tieredDeals.premium_local = deal;
+    }
+  }
+
+  // Izbira najboljše ponudbe glede na preferenco uporabnika
+  let bestDeal = matched[0];
+  if (userPreference === 'cheapest' && tieredDeals.budget) {
+    bestDeal = tieredDeals.budget;
+  } else if (userPreference === 'best_value' && tieredDeals.brand) {
+    bestDeal = tieredDeals.brand;
+  } else if (userPreference === 'premium_local' && tieredDeals.premium_local) {
+    bestDeal = tieredDeals.premium_local;
+  }
+
   return {
-    bestDeal: matched[0],
-    matchingDeals: matched
+    bestDeal,
+    matchingDeals: matched,
+    tieredDeals
   };
 }

@@ -39,15 +39,48 @@ export const COMMON_ITEMS = [
 ];
 
 export const DEFAULT_FAMILY_MEMBERS = [
-  { id: 'mami', name: 'Mami', avatar: '👩', color: '#ec4899' },
-  { id: 'oce', name: 'Oče', avatar: '👨', color: '#3b82f6' },
-  { id: 'miha', name: 'Miha', avatar: '👦', color: '#10b981' },
-  { id: 'anja', name: 'Anja', avatar: '👧', color: '#f59e0b' },
-  { id: 'babica', name: 'Babica', avatar: '👵', color: '#8b5cf6' },
-  { id: 'deda', name: 'Deda', avatar: '👴', color: '#64748b' }
+  {
+    id: 'user-1',
+    name: 'Miha',
+    avatar: '👨',
+    color: '#10b981',
+    role: 'admin',
+    preference: 'best_value'
+  },
+  {
+    id: 'user-2',
+    name: 'Veronika',
+    avatar: '👩',
+    color: '#ec4899',
+    role: 'member',
+    preference: 'premium_local'
+  },
+  {
+    id: 'user-3',
+    name: 'Domen',
+    avatar: '👦',
+    color: '#3b82f6',
+    role: 'member',
+    preference: 'cheapest'
+  },
+  {
+    id: 'user-4',
+    name: 'Luka',
+    avatar: '👦',
+    color: '#f59e0b',
+    role: 'member',
+    preference: 'cheapest'
+  },
+  {
+    id: 'user-5',
+    name: 'Mark',
+    avatar: '👶',
+    color: '#8b5cf6',
+    role: 'member',
+    preference: 'premium_local'
+  }
 ];
 
-// Ohranimo združljivost s kodo, ki uvaža FAMILY_MEMBERS
 export const FAMILY_MEMBERS = DEFAULT_FAMILY_MEMBERS;
 
 export const AVAILABLE_AVATARS = [
@@ -55,3 +88,24 @@ export const AVAILABLE_AVATARS = [
   '🐱', '🐶', '🦊', '🐻', '🐼', '🦁', '🦄', '🐝',
   '👑', '⭐', '🛒', '🦸', '🧙', '🚀', '🥑', '🍕'
 ];
+
+export const PREFERENCE_LABELS = {
+  cheapest: {
+    label: 'Najceneje (Diskont)',
+    emoji: '🟢',
+    badge: 'Diskont',
+    color: 'emerald'
+  },
+  best_value: {
+    label: 'Najboljša znamka (Best Value)',
+    emoji: '🟡',
+    badge: 'Znamka',
+    color: 'amber'
+  },
+  premium_local: {
+    label: 'Lokalno & Eko (Premium)',
+    emoji: '🌿',
+    badge: 'Lokalno/Eko',
+    color: 'teal'
+  }
+};
