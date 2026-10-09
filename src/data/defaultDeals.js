@@ -26,7 +26,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '250 g',
     validFrom: '2026-10-05',
     validTo: '2026-10-11',
-    sourceCatalogUrl: 'https://www.lidl.si/letak',
+    sourceCatalogUrl: 'https://www.lidl.si/c/spletni-katalog/s10019133',
     highlight: 'Lidl Plus kupon'
   },
   {
@@ -41,7 +41,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '1 l',
     validFrom: '2026-10-08',
     validTo: '2026-10-15',
-    sourceCatalogUrl: 'https://www.hofer.si/letak',
+    sourceCatalogUrl: 'https://www.letakonosa.si/hofer/',
     highlight: 'Tedenska akcija'
   },
   {
@@ -86,7 +86,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '10 kos',
     validFrom: '2026-10-05',
     validTo: '2026-10-11',
-    sourceCatalogUrl: 'https://www.lidl.si/letak',
+    sourceCatalogUrl: 'https://www.lidl.si/c/spletni-katalog/s10019133',
     highlight: 'Lidl cena'
   },
   {
@@ -101,7 +101,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '1 kg',
     validFrom: '2026-10-08',
     validTo: '2026-10-15',
-    sourceCatalogUrl: 'https://www.hofer.si/letak',
+    sourceCatalogUrl: 'https://www.letakonosa.si/hofer/',
     highlight: 'Iz naše pekarne'
   },
   {
@@ -131,7 +131,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '500 g',
     validFrom: '2026-10-05',
     validTo: '2026-10-11',
-    sourceCatalogUrl: 'https://www.lidl.si/letak',
+    sourceCatalogUrl: 'https://www.lidl.si/c/spletni-katalog/s10019133',
     highlight: 'Sveže slovensko'
   },
   {
@@ -176,7 +176,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '400 ml',
     validFrom: '2026-10-05',
     validTo: '2026-10-18',
-    sourceCatalogUrl: 'https://www.mueller.si/letak',
+    sourceCatalogUrl: 'https://www.letakonosa.si/muller/',
     highlight: 'Müller popust'
   },
   {
@@ -206,7 +206,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '10 rol',
     validFrom: '2026-10-05',
     validTo: '2026-10-11',
-    sourceCatalogUrl: 'https://www.lidl.si/letak',
+    sourceCatalogUrl: 'https://www.lidl.si/c/spletni-katalog/s10019133',
     highlight: 'Super vikend'
   },
   {
@@ -221,7 +221,7 @@ export const DEFAULT_CATALOG_DEALS = [
     unit: '100 g',
     validFrom: '2026-10-08',
     validTo: '2026-10-15',
-    sourceCatalogUrl: 'https://www.hofer.si/letak',
+    sourceCatalogUrl: 'https://www.letakonosa.si/hofer/',
     highlight: 'Sladki prihranek'
   },
   {
