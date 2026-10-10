@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
       manifest: {
-        id: '/druzinski-nakupovalni-seznam/?v=3',
-        start_url: '/druzinski-nakupovalni-seznam/',
+        id: 'druzinski-seznam-app-v4',
+        start_url: '/druzinski-nakupovalni-seznam/?app=standalone',
         scope: '/druzinski-nakupovalni-seznam/',
         name: 'Družinski Nakupovalni Seznam',
         short_name: 'Družinski Seznam',
