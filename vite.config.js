@@ -11,11 +11,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
       manifest: {
-        id: '/druzinski-nakupovalni-seznam/',
+        id: '/druzinski-nakupovalni-seznam/?v=3',
         start_url: '/druzinski-nakupovalni-seznam/',
         scope: '/druzinski-nakupovalni-seznam/',
         name: 'Družinski Nakupovalni Seznam',
-        short_name: 'Nakupi',
+        short_name: 'Družinski Seznam',
         description: 'Pametni družinski nakupovalni seznam z analizo akcij slovenskih trgovcev in PIN zaščito',
         theme_color: '#10b981',
         background_color: '#ffffff',
