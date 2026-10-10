@@ -22,6 +22,7 @@ import DealsView from './components/DealsView';
 import AddItemModal from './components/AddItemModal';
 import DealComparison from './components/DealComparison';
 import UserManager from './components/UserManager';
+import FamilyDrawer from './components/FamilyDrawer';
 import SettingsModal from './components/SettingsModal';
 import LiveShoppingBar from './components/LiveShoppingBar';
 import CheckoutModal from './components/CheckoutModal';
@@ -721,15 +722,15 @@ export default function App() {
         onSelectTier={handleSelectTier}
       />
 
-      {/* Modal za hitri preklop ali urejanje profilov (UserManager) */}
-      <UserManager
+      {/* Spodnji drsni meni za družinske člane (FamilyDrawer Bottom Sheet) */}
+      <FamilyDrawer
         isOpen={isUserManagerOpen}
         onClose={() => setIsUserManagerOpen(false)}
         users={familyMembers}
         activeUser={currentMember}
         onSelectUser={setCurrentMember}
         onSaveUsers={saveFamilyMembers}
-        initialTab={userManagerMode}
+        activeFamily={activeFamily}
       />
 
       {/* Multi-družinski preklopnik (FamilySwitcher) */}

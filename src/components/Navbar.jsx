@@ -59,14 +59,21 @@ export default function Navbar({
           {/* Desna orodna vrstica: Izbira družinskega člana & Nastavitve */}
           <div className="flex items-center gap-2">
             
-            {/* Preklopnik profila z enim dotikom */}
+            {/* Preklopnik profila z enim dotikom (odpre Family Drawer) */}
             <button
               onClick={onOpenUserManager}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-xs font-semibold transition active:scale-95 border border-slate-200 shadow-2xs cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition active:scale-95 border border-slate-200/90 shadow-2xs cursor-pointer ring-1 ring-slate-900/5"
               title="Preklopi družinskega člana"
             >
-              <span className="text-base leading-none">{currentMember?.avatar || '🧑'}</span>
-              <span className="font-bold text-slate-900">{currentMember?.name || 'Profil'}</span>
+              <div 
+                className="w-6 h-6 rounded-xl flex items-center justify-center text-sm shadow-2xs"
+                style={{ backgroundColor: currentMember?.color ? `${currentMember.color}25` : '#ecfdf5' }}
+              >
+                {currentMember?.avatar || '🧑'}
+              </div>
+              <span className="font-extrabold text-slate-900 text-xs max-w-[70px] truncate">
+                {currentMember?.name || 'Profil'}
+              </span>
             </button>
 
             {/* Gumb za nastavitve */}

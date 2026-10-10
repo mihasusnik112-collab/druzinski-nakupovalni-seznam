@@ -77,10 +77,11 @@ export default function ItemCard({
               <span>{category.name}</span>
             </span>
 
-            {/* Kdo je dodal */}
-            {item.addedBy && (
-              <span className="text-[11px] text-slate-400">
-                • dodal/a <span className="font-medium text-slate-500">{item.addedBy}</span>
+            {/* Kdo je dodal (Avatar + Ime) */}
+            {(item.addedByName || item.addedBy) && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                <span>{item.addedByAvatar || '🧑'}</span>
+                <span>{item.addedByName || item.addedBy}</span>
               </span>
             )}
           </div>

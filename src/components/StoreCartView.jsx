@@ -338,10 +338,11 @@ export default function StoreCartView({
                             </span>
                           )}
 
-                          {item.hasCouponApplied && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-extrabold text-[10px]">
-                              <span>🃏</span>
-                              <span>-25% Spar Joker</span>
+                          {/* Kdo je dodal artikel */}
+                          {(item.addedByName || item.addedBy) && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                              <span>{item.addedByAvatar || '🧑'}</span>
+                              <span>{item.addedByName || item.addedBy}</span>
                             </span>
                           )}
                         </div>
