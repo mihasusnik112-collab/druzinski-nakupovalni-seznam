@@ -223,12 +223,128 @@ export function updateActiveFamily(updatedData) {
   return getActiveFamily();
 }
 
-export function createFamily({ familyName, members = [], preferences = {} }) {
-  const { familyId, joinCode } = generateFamilyId(familyName);
+// Ključi za trajno prijavo
+export const LOCAL_STORAGE_ACTIVE_FAMILY_SESSION_KEY = 'nakupki_active_family_session_v2';
+
+export function getActiveFamilySession() {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_ACTIVE_FAMILY_SESSION_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.familyId) return parsed;
+    }
+  } catch (err) {
+    console.error('Napaka pri branju seje:', err);
+  }
+  return null;
+}
+
+export function saveActiveFamilySession(sessionData) {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_ACTIVE_FAMILY_SESSION_KEY, JSON.stringify(sessionData));
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: 'SESSION_CHANGED', session: sessionData });
+    }
+  } catch (err) {
+    console.error('Napaka pri shranjevanju seje:', err);
+  }
+}
+
+export function clearActiveFamilySession() {
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_ACTIVE_FAMILY_SESSION_KEY);
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: 'SESSION_CHANGED', session: null });
+    }
+  } catch (err) {
+    console.error('Napaka pri odjavi seje:', err);
+  }
+}
+
+/**
+ * Preveri ali je družina skrbnik (Sušnik z admin PIN-om)
+ */
+export function isFamilyAdmin(family) {
+  if (!family) return false;
+  const surname = (family.familySurname || family.familyName || '').toLowerCase();
+  return surname.includes('sušnik') || surname.includes('susnik') || family.isAdmin === true;
+}
+
+/**
+ * Preveri prijavo družine s priimkom in 4-mestnim PIN-om
+ */
+export function loginFamilyByPin(surname, pin) {
+  const cleanSurname = surname.trim().toLowerCase()
+    .replace(/^družina\s+/i, '')
+    .replace(/^druzina\s+/i, '')
+    .trim();
+  const cleanPin = pin.trim();
+
+  const families = getLocalFamilies();
+
+  // Poišči družino po priimku ali imenu
+  const found = families.find(f => {
+    const fn = (f.familySurname || f.familyName || '').toLowerCase()
+      .replace(/^družina\s+/i, '')
+      .replace(/^druzina\s+/i, '')
+      .trim();
+    return fn === cleanSurname || f.familyId.toLowerCase().includes(cleanSurname);
+  });
+
+  if (!found) {
+    return {
+      success: false,
+      message: `Družine s priimkom "${surname}" nismo našli. Preverite črkovanje ali ustvarite novo družino.`
+    };
+  }
+
+  // Preveri PIN kodo (privzeto 1234 za obstoječe ali nastavljen PIN)
+  const expectedPin = found.pin || '1234';
+  if (cleanPin !== expectedPin) {
+    return {
+      success: false,
+      message: 'Napačna PIN koda! Poskusite znova.'
+    };
+  }
+
+  // Uspešna prijava: shrani trajno sejo
+  const session = {
+    familyId: found.familyId,
+    familyName: found.familyName,
+    familySurname: found.familySurname || found.familyName,
+    isAdmin: isFamilyAdmin(found),
+    loginTime: Date.now()
+  };
+
+  saveActiveFamilySession(session);
+  setActiveFamily(found.familyId);
+
+  return {
+    success: true,
+    family: found,
+    isAdmin: session.isAdmin
+  };
+}
+
+export function updateFamilyPin(familyId, newPin) {
+  const families = getLocalFamilies();
+  const updated = families.map(f => f.familyId === familyId ? { ...f, pin: newPin } : f);
+  saveLocalFamilies(updated);
+  return true;
+}
+
+export function createFamily({ familyName, pin = '1234', members = [], preferences = {} }) {
+  const cleanSurname = familyName.replace(/^družina\s+/i, '').replace(/^druzina\s+/i, '').trim() || familyName.trim();
+  const { familyId, joinCode } = generateFamilyId(cleanSurname);
+  const isAdmin = cleanSurname.toLowerCase() === 'sušnik' || cleanSurname.toLowerCase() === 'susnik';
+
   const newFamily = {
     familyId,
-    familyName: familyName.trim() || 'Nova Družina',
+    familyName: familyName.trim().startsWith('Družina') ? familyName.trim() : `Družina ${familyName.trim()}`,
+    familySurname: cleanSurname,
     joinCode,
+    pin: pin || '1234',
+    isAdmin,
     members: members.length > 0 ? members : [
       { id: 'user_' + Date.now(), name: 'Skrbnik', birthYear: 1990, avatar: '👨', role: 'admin', color: '#10b981', preference: 'best_value' }
     ],
@@ -245,7 +361,18 @@ export function createFamily({ familyName, members = [], preferences = {} }) {
   const families = getLocalFamilies();
   const updated = [...families, newFamily];
   saveLocalFamilies(updated);
+  
+  // Takoj prijavi
+  const session = {
+    familyId: newFamily.familyId,
+    familyName: newFamily.familyName,
+    familySurname: newFamily.familySurname,
+    isAdmin: newFamily.isAdmin,
+    loginTime: Date.now()
+  };
+  saveActiveFamilySession(session);
   setActiveFamily(familyId);
+
   return newFamily;
 }
 
@@ -258,6 +385,14 @@ export function joinFamilyByCode(joinCode) {
   );
 
   if (found) {
+    const session = {
+      familyId: found.familyId,
+      familyName: found.familyName,
+      familySurname: found.familySurname || found.familyName,
+      isAdmin: isFamilyAdmin(found),
+      loginTime: Date.now()
+    };
+    saveActiveFamilySession(session);
     setActiveFamily(found.familyId);
     return { success: true, family: found };
   }

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="bagGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Full canvas rounded background with emerald gradient -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+
+  <!-- Shopping Bag / Košarica Icon -->
+  <g filter="url(#shadow)">
+    <!-- Bag Handle -->
+    <path d="M192 190 V140 C192 104.65 220.65 76 256 76 C291.35 76 320 104.65 320 140 V190" 
+          fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Bag Body -->
+    <rect x="120" y="180" width="272" height="256" rx="42" fill="url(#bagGrad)" />
+
+    <!-- Fresh Apple & Leaf Badge inside bag -->
+    <!-- Apple base -->
+    <path d="M256 260 C236 230 200 234 186 264 C170 298 186 364 256 394 C326 364 342 298 326 264 C312 234 276 230 256 260 Z" 
+          fill="#EF4444" />
+    <!-- Apple leaf -->
+    <path d="M256 244 C264 220 286 212 294 216 C296 232 284 250 262 250 Z" fill="#10B981" />
+
+    <!-- Sparkle Stars / Smart AI -->
+    <path d="M344 140 L348 156 L364 160 L348 164 L344 180 L340 164 L324 160 L340 156 Z" fill="#FDE047" />
+    <path d="M156 124 L158 136 L170 138 L158 140 L156 152 L154 140 L142 138 L154 136 Z" fill="#FDE047" />
+  </g>
+</svg>

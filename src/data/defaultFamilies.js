@@ -51,7 +51,10 @@ export const DEFAULT_FAMILIES = [
   {
     familyId: 'Susnik-4102',
     familyName: 'Družina Sušnik',
+    familySurname: 'Sušnik',
     joinCode: '4102',
+    pin: '1234',
+    isAdmin: true,
     members: [
       { id: 'user-1', name: 'Miha', birthYear: 1988, avatar: '👨', role: 'admin', color: '#10b981', preference: 'best_value' },
       { id: 'user-2', name: 'Veronika', birthYear: 1990, avatar: '👩', role: 'member', color: '#ec4899', preference: 'premium_local' },
@@ -71,7 +74,10 @@ export const DEFAULT_FAMILIES = [
   {
     familyId: 'Novak-7319',
     familyName: 'Družina Novak',
+    familySurname: 'Novak',
     joinCode: '7319',
+    pin: '1234',
+    isAdmin: false,
     members: [
       { id: 'user-n1', name: 'Janez', birthYear: 1984, avatar: '👨', role: 'admin', color: '#3b82f6', preference: 'cheapest' },
       { id: 'user-n2', name: 'Maja', birthYear: 1986, avatar: '👩', role: 'member', color: '#ec4899', preference: 'premium_local' },
@@ -95,4 +101,12 @@ export function generateFamilyId(name = 'Druzina') {
     familyId: `${cleanName}-${code}`,
     joinCode: code
   };
+}
+
+export function normalizeSurname(name = '') {
+  return name
+    .toLowerCase()
+    .replace(/^družina\s+/i, '')
+    .replace(/^druzina\s+/i, '')
+    .trim();
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, ShoppingCart, Tag, Settings, Cloud, HardDrive, Receipt, UtensilsCrossed, Home, ChevronDown } from 'lucide-react';
+import { ShoppingBag, ShoppingCart, Tag, Settings, Cloud, HardDrive, Receipt, UtensilsCrossed, Home, ChevronDown, Crown } from 'lucide-react';
 import { isFirebaseConfigured } from '../firebase';
 
 export default function Navbar({ 
@@ -7,6 +7,7 @@ export default function Navbar({
   setActiveTab, 
   currentMember, 
   activeFamily,
+  isAdmin = false,
   onOpenUserManager,
   onOpenFamilyManager,
   onOpenSettings,
@@ -79,8 +80,8 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Glavna navigacija med zavihki: Načrtovanje, Košarica v trgovini, Akcije, Recepti, Zgodovina */}
-        <div className="grid grid-cols-5 gap-1 mt-2.5 p-1 bg-slate-100 rounded-xl">
+        {/* Glavna navigacija med zavihki */}
+        <div className={`grid gap-1 mt-2.5 p-1 bg-slate-100 rounded-xl ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
           <button
             onClick={() => setActiveTab('planning')}
             className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer truncate ${
@@ -175,6 +176,22 @@ export default function Navbar({
               </span>
             )}
           </button>
+
+          {/* Skrbniški zavihek samo za družino Sušnik */}
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer truncate ${
+                activeTab === 'admin'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'text-amber-800 hover:text-amber-900 bg-amber-100/60'
+              }`}
+              title="Skrbniška nadzorna plošča"
+            >
+              <Crown className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Admin</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

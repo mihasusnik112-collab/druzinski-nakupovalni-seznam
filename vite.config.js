@@ -9,31 +9,47 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
+      includeAssets: ['favicon.svg', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
       manifest: {
         name: 'Družinski Nakupovalni Seznam',
-        short_name: 'Nakupki',
-        description: 'Pametni družinski nakupovalni seznam z analizo akcij slovenskih trgovcev',
-        theme_color: '#16a34a',
-        background_color: '#f8fafc',
+        short_name: 'Nakupi',
+        description: 'Pametni družinski nakupovalni seznam z analizo akcij slovenskih trgovcev in PIN zaščito',
+        theme_color: '#10b981',
+        background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'pwa-192x192.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'pwa-512x512.svg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'pwa-512x512.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/logos/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'store-logos-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 dni
+              }
+            }
           }
         ]
       }

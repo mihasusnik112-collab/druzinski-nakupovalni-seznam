@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="bagGrad192" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+  </defs>
+
+  <rect width="192" height="192" rx="42" fill="url(#bgGrad192)" />
+
+  <g>
+    <!-- Handle -->
+    <path d="M72 72 V54 C72 40.7 82.7 30 96 30 C109.3 30 120 40.7 120 54 V72" 
+          fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Bag -->
+    <rect x="45" y="68" width="102" height="96" rx="16" fill="url(#bagGrad192)" />
+
+    <!-- Apple -->
+    <path d="M96 98 C88 86 74 88 68 100 C62 113 68 138 96 150 C124 138 130 113 124 100 C118 88 104 86 96 98 Z" 
+          fill="#EF4444" />
+    <path d="M96 92 C99 82 108 79 111 81 C112 87 107 94 98 94 Z" fill="#10B981" />
+  </g>
+</svg>

@@ -16,6 +16,8 @@ import ShoppingList from './components/ShoppingList';
 import PlanningView from './components/PlanningView';
 import StoreCartView from './components/StoreCartView';
 import CouponOptimizer from './components/CouponOptimizer';
+import FamilyLogin from './components/Auth/FamilyLogin';
+import AdminDashboard from './components/Admin/AdminDashboard';
 import DealsView from './components/DealsView';
 import AddItemModal from './components/AddItemModal';
 import DealComparison from './components/DealComparison';
@@ -64,6 +66,10 @@ import {
   updateActiveFamily,
   createFamily,
   joinFamilyByCode,
+  getActiveFamilySession,
+  saveActiveFamilySession,
+  clearActiveFamilySession,
+  isFamilyAdmin,
   getLocalRecipes,
   subscribeRecipes,
   addRecipe,
@@ -81,8 +87,13 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Trajna prijava in avtentikacija družine s PIN-om
+  const [familySession, setFamilySession] = useState(getActiveFamilySession);
+  const isAuthenticated = Boolean(familySession?.familyId);
+
   // Multi-družinska podpora
   const [activeFamily, setActiveFamilyState] = useState(getActiveFamily);
+  const isAdmin = isFamilyAdmin(activeFamily) || familySession?.isAdmin;
 
   // Družinski uporabniki in aktivni uporabnik
   const [familyMembers, setFamilyMembers] = useState(getLocalMembers);
@@ -378,9 +389,42 @@ export default function App() {
     triggerConfetti();
   };
 
+  // Uspešna prijava družine s PIN kodo
+  const handleLoginSuccess = (family, isAdminStatus) => {
+    setActiveFamilyState(family);
+    setFamilySession({
+      familyId: family.familyId,
+      familyName: family.familyName,
+      isAdmin: isAdminStatus
+    });
+    if (family?.members && family.members.length > 0) {
+      setFamilyMembers(family.members);
+      setCurrentMember(family.members[0]);
+    }
+    triggerConfetti();
+  };
+
+  // Odjava trenutne družine
+  const handleLogoutFamily = () => {
+    clearActiveFamilySession();
+    setFamilySession(null);
+  };
+
   // Upravljanje družin
   const handleSwitchFamily = (familyId) => {
     setActiveFamily(familyId);
+    const updatedFam = getActiveFamily();
+    setActiveFamilyState(updatedFam);
+    if (familySession) {
+      const updatedSess = {
+        ...familySession,
+        familyId: updatedFam.familyId,
+        familyName: updatedFam.familyName,
+        isAdmin: isFamilyAdmin(updatedFam)
+      };
+      saveActiveFamilySession(updatedSess);
+      setFamilySession(updatedSess);
+    }
     triggerConfetti();
   };
 
@@ -475,6 +519,17 @@ export default function App() {
   const activeCount = useMemo(() => items.filter(i => !i.completed).length, [items]);
   const cartCount = useMemo(() => items.filter(i => i.completed).length, [items]);
 
+  // Če uporabnik še ni prijavljen, prikaži FamilyLogin vstopni zaslon
+  if (!isAuthenticated) {
+    return (
+      <FamilyLogin
+        onLoginSuccess={handleLoginSuccess}
+        onOpenCreateNewFamily={handleCreateNewFamily}
+        savedSurname={activeFamily?.familySurname || 'Sušnik'}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-800 pb-36">
       
@@ -484,6 +539,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         currentMember={currentMember}
         activeFamily={activeFamily}
+        isAdmin={isAdmin}
         onOpenUserManager={() => {
           setUserManagerMode('switch');
           setIsUserManagerOpen(true);
@@ -581,6 +637,15 @@ export default function App() {
             history={history}
             onDeleteHistoryItem={deletePurchaseHistoryItem}
             onClearHistory={clearAllPurchaseHistory}
+          />
+        )}
+
+        {/* ZAVIHEK: 👑 NADZORNA PLOŠČA SKRBNIKA (ADMIN) */}
+        {activeTab === 'admin' && isAdmin && (
+          <AdminDashboard
+            activeFamily={activeFamily}
+            onSwitchFamily={handleSwitchFamily}
+            onClose={() => setActiveTab('planning')}
           />
         )}
       </main>
@@ -699,6 +764,7 @@ export default function App() {
           setIsOnboardingOpen(true);
         }}
         onOpenFamilyManager={() => setIsFamilyManagerOpen(true)}
+        onLogoutFamily={handleLogoutFamily}
       />
 
     </div>

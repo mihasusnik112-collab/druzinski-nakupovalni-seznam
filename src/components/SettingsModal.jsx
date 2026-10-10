@@ -41,7 +41,8 @@ export default function SettingsModal({
   onSelectCurrentMember,
   activeFamily = null,
   onOpenOnboarding = null,
-  onOpenFamilyManager = null
+  onOpenFamilyManager = null,
+  onLogoutFamily = null
 }) {
   const [apiKey, setApiKey] = useState('');
   const [projectId, setProjectId] = useState('');
@@ -647,21 +648,30 @@ export default function SettingsModal({
           </div>
 
           {/* ======================================================== */}
-          {/* SEKCIJA 4: PWA NAVODILA */}
+          {/* SEKCIJA 5: ODJAVA DRUŽINE (PIN ZAŠČITA) */}
           {/* ======================================================== */}
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-amber-900">
-            <div className="flex items-start gap-2.5">
-              <Smartphone className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          {onLogoutFamily && (
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
               <div>
-                <h4 className="text-xs font-bold">Namestitev na telefon (PWA)</h4>
-                <p className="text-[11px] text-amber-800/90 mt-1 leading-relaxed">
-                  Aplikacijo lahko namestite kot domačo ikono:
-                  <br />• <strong>iOS Safari:</strong> Deli → <em>Dodaj na začetni zaslon</em>
-                  <br />• <strong>Android Chrome:</strong> Meni (3 pikice) → <em>Namesti aplikacijo</em>
+                <h4 className="text-xs font-bold text-slate-800">Odjava trenutne družine</h4>
+                <p className="text-[11px] text-slate-500">
+                  Preklop na vstopni zaslon za menjavo profila ali naprave.
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('Ali se želite odjaviti iz trenutne družine?')) {
+                    onLogoutFamily();
+                    onClose();
+                  }
+                }}
+                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs cursor-pointer transition shrink-0"
+              >
+                Odjava družine
+              </button>
             </div>
-          </div>
+          )}
 
         </div>
 
