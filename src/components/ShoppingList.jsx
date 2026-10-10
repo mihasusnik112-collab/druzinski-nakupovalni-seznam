@@ -7,6 +7,7 @@ import {
   ChevronDown, 
   Layers, 
   Plus, 
+  Minus,
   ExternalLink,
   Tag,
   CheckCircle2
@@ -23,7 +24,8 @@ export default function ShoppingList({
   onOpenAddItem,
   onOpenDealComparison,
   onSelectTier,
-  onUpdateItemPrice
+  onUpdateItemPrice,
+  onUpdateItemQuantity
 }) {
   const [showCompleted, setShowCompleted] = useState(true);
   const [editingPriceId, setEditingPriceId] = useState(null);
@@ -113,11 +115,10 @@ export default function ShoppingList({
                           {item.title}
                         </span>
 
-                        {item.quantity && (
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
-                            {item.quantity}
-                          </span>
-                        )}
+                        {/* Izrazita značka s količino */}
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold text-xs shadow-2xs">
+                          {item.displayQuantity || `${item.quantity || 1} ${item.unit || 'kom'}`}
+                        </span>
 
                         {item.hasCouponApplied && (
                           <span className="px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-900 text-[10px] font-bold">
@@ -126,12 +127,23 @@ export default function ShoppingList({
                         )}
                       </div>
 
-                      {/* Kategorija & Avtorstvo */}
+                      {/* Kategorija, Avtorstvo & Cena artikla */}
                       <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 flex-wrap">
                         <span className="inline-flex items-center gap-1">
                           <span>{category.emoji}</span>
                           <span>{category.name}</span>
                         </span>
+
+                        {item.price > 0 && (
+                          <span className="font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                            {Number(item.price).toFixed(2).replace('.', ',')} € / {item.unit || 'kom'}
+                            {(Number(item.quantity) || 1) !== 1 && (
+                              <span className="text-emerald-700 font-bold ml-1">
+                                • Skupaj: {((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')} €
+                              </span>
+                            )}
+                          </span>
+                        )}
 
                         {/* Kdo je dodal (Avatar + Ime) */}
                         {item.addedByName && (
@@ -232,17 +244,65 @@ export default function ShoppingList({
 
                     </div>
 
-                    {/* Izbris */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteItem(item.id);
-                      }}
-                      className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition cursor-pointer"
-                      title="Izbriši artikel"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* Desna stran: Stepper za količino & Izbris */}
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      {/* Hitri gumbi + in - za količino */}
+                      <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const isDecimal = item.unit === 'kg' || item.unit === 'l';
+                            const step = isDecimal ? 0.5 : 1;
+                            const current = Number(item.quantity) || 1;
+                            const next = current - step;
+                            if (next <= 0) {
+                              if (confirm(`Ali želite odstraniti artikel "${item.title}"?`)) {
+                                onDeleteItem(item.id);
+                              }
+                            } else {
+                              onUpdateItemQuantity?.(item.id, isDecimal ? Number(next.toFixed(1)) : Math.round(next));
+                            }
+                          }}
+                          className="w-6 h-6 rounded-lg bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-600 flex items-center justify-center font-bold shadow-2xs transition active:scale-90 cursor-pointer"
+                          title="Zmanjšaj količino"
+                        >
+                          <Minus className="w-3 h-3 stroke-[2.5]" />
+                        </button>
+
+                        <span className="px-1 text-[11px] font-black text-slate-800 min-w-[18px] text-center">
+                          {item.quantity || 1}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const isDecimal = item.unit === 'kg' || item.unit === 'l';
+                            const step = isDecimal ? 0.5 : 1;
+                            const current = Number(item.quantity) || 1;
+                            const next = current + step;
+                            onUpdateItemQuantity?.(item.id, isDecimal ? Number(next.toFixed(1)) : Math.round(next));
+                          }}
+                          className="w-6 h-6 rounded-lg bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 flex items-center justify-center font-bold shadow-2xs transition active:scale-90 cursor-pointer"
+                          title="Povečaj količino"
+                        >
+                          <Plus className="w-3 h-3 stroke-[2.5]" />
+                        </button>
+                      </div>
+
+                      {/* Izbris */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteItem(item.id);
+                        }}
+                        className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                        title="Izbriši artikel"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -312,11 +372,10 @@ export default function ShoppingList({
                         <span className="text-sm font-bold text-slate-800 line-through opacity-85 truncate">
                           {item.title}
                         </span>
-                        {item.quantity && (
-                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.2 rounded">
-                            {item.quantity}
-                          </span>
-                        )}
+                        {/* Izrazita značka s količino */}
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold text-xs shadow-2xs">
+                          {item.displayQuantity || `${item.quantity || 1} ${item.unit || 'kom'}`}
+                        </span>
                         {item.hasCouponApplied && (
                           <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.2 rounded">
                             🃏 {item.couponTitle || '-25% Joker'}
@@ -324,8 +383,18 @@ export default function ShoppingList({
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500">
+                      <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500 flex-wrap">
                         <span>{category?.emoji} {category?.name}</span>
+                        {hasPrice && (
+                          <span className="font-semibold text-slate-700">
+                            • {Number(item.price).toFixed(2).replace('.', ',')} € / {item.unit || 'kom'}
+                            {(Number(item.quantity) || 1) !== 1 && (
+                              <span className="text-emerald-700 font-bold ml-1">
+                                (Skupaj: {((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')} €)
+                              </span>
+                            )}
+                          </span>
+                        )}
                         {item.addedByName && (
                           <span>• {item.addedByAvatar || '🧑'} {item.addedByName}</span>
                         )}
@@ -337,8 +406,54 @@ export default function ShoppingList({
                       </div>
                     </div>
 
-                    {/* Polje / Značka za ceno */}
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Desna stran: Stepper za količino, vnos cene & izbris */}
+                    <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      {/* Hitri gumbi + in - za količino */}
+                      <div className="flex items-center gap-1 bg-white/90 p-0.5 rounded-xl border border-emerald-200 shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const isDecimal = item.unit === 'kg' || item.unit === 'l';
+                            const step = isDecimal ? 0.5 : 1;
+                            const current = Number(item.quantity) || 1;
+                            const next = current - step;
+                            if (next <= 0) {
+                              if (confirm(`Ali želite odstraniti artikel "${item.title}"?`)) {
+                                onDeleteItem(item.id);
+                              }
+                            } else {
+                              onUpdateItemQuantity?.(item.id, isDecimal ? Number(next.toFixed(1)) : Math.round(next));
+                            }
+                          }}
+                          className="w-6 h-6 rounded-lg bg-emerald-50 hover:bg-rose-50 hover:text-rose-600 text-slate-600 flex items-center justify-center font-bold shadow-2xs transition active:scale-90 cursor-pointer"
+                          title="Zmanjšaj količino"
+                        >
+                          <Minus className="w-3 h-3 stroke-[2.5]" />
+                        </button>
+
+                        <span className="px-1 text-[11px] font-black text-slate-800 min-w-[18px] text-center">
+                          {item.quantity || 1}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const isDecimal = item.unit === 'kg' || item.unit === 'l';
+                            const step = isDecimal ? 0.5 : 1;
+                            const current = Number(item.quantity) || 1;
+                            const next = current + step;
+                            onUpdateItemQuantity?.(item.id, isDecimal ? Number(next.toFixed(1)) : Math.round(next));
+                          }}
+                          className="w-6 h-6 rounded-lg bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800 text-slate-600 flex items-center justify-center font-bold shadow-2xs transition active:scale-90 cursor-pointer"
+                          title="Povečaj količino"
+                        >
+                          <Plus className="w-3 h-3 stroke-[2.5]" />
+                        </button>
+                      </div>
+
+                      {/* Polje / Značka za ceno */}
                       {isEditingThisPrice ? (
                         <div className="flex items-center gap-1">
                           <input

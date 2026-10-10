@@ -32,6 +32,7 @@ export default function PlanningView({
   onOpenDealComparison,
   onSelectTier,
   onUpdateItemPrice,
+  onUpdateItemQuantity,
   onApplyCoupon,
   onOpenDealsTab,
   onOpenRecipe
@@ -119,6 +120,7 @@ export default function PlanningView({
         onOpenDealComparison={onOpenDealComparison}
         onSelectTier={onSelectTier}
         onUpdateItemPrice={onUpdateItemPrice}
+        onUpdateItemQuantity={onUpdateItemQuantity}
       />
 
     </div>

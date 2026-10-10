@@ -47,6 +47,7 @@ import {
   deleteShoppingItem, 
   clearAllCompletedItems,
   updateShoppingItem,
+  updateItemQuantity,
   getLocalMembers,
   saveFamilyMembers,
   subscribeFamilyMembers,
@@ -237,14 +238,17 @@ export default function App() {
     let amount = 0;
     let savings = 0;
     for (const item of completedItems) {
+      const q = typeof item.quantity === 'number' && !isNaN(item.quantity) && item.quantity > 0 
+        ? item.quantity 
+        : (parseFloat(String(item.quantity).replace(',', '.')) || 1);
       const price = Number(item.price) || 0;
       const sav = Number(item.savings) || 0;
-      amount += price;
-      savings += sav;
+      amount += (price * q);
+      savings += (sav * q);
     }
     return {
-      sessionTotalAmount: amount,
-      sessionTotalSavings: savings
+      sessionTotalAmount: Number(amount.toFixed(2)),
+      sessionTotalSavings: Number(savings.toFixed(2))
     };
   }, [completedItems]);
 
@@ -329,6 +333,12 @@ export default function App() {
   const handleUpdateItemPrice = async (itemId, price) => {
     touchActivity();
     await updateShoppingItem(itemId, { price: Number(price) || 0 });
+  };
+
+  // Posodobi količino artikla (+/-)
+  const handleUpdateItemQuantity = async (itemId, newQuantity, newUnit = null) => {
+    touchActivity();
+    await updateItemQuantity(itemId, newQuantity, newUnit);
   };
 
   // Izbira kakovostnega razreda za artikel
@@ -516,10 +526,13 @@ export default function App() {
     let total = 0;
     for (const item of items) {
       if (item.savings && !item.completed) {
-        total += Number(item.savings);
+        const q = typeof item.quantity === 'number' && !isNaN(item.quantity) && item.quantity > 0 
+          ? item.quantity 
+          : (parseFloat(String(item.quantity).replace(',', '.')) || 1);
+        total += (Number(item.savings) * q);
       }
     }
-    return total;
+    return Number(total.toFixed(2));
   }, [items]);
 
   const activeCount = useMemo(() => items.filter(i => !i.completed).length, [items]);
@@ -587,6 +600,7 @@ export default function App() {
             onOpenDealComparison={handleOpenDealComparison}
             onSelectTier={handleSelectTier}
             onUpdateItemPrice={handleUpdateItemPrice}
+            onUpdateItemQuantity={handleUpdateItemQuantity}
             onApplyCoupon={handleApplyCoupon}
             onOpenDealsTab={() => setActiveTab('deals')}
             onOpenRecipe={(rec) => setActiveTab('recipes')}
@@ -608,6 +622,7 @@ export default function App() {
             onDeleteItem={handleDeleteItem}
             onClearCompleted={handleClearCompleted}
             onUpdateItemPrice={handleUpdateItemPrice}
+            onUpdateItemQuantity={handleUpdateItemQuantity}
             onOpenAddItem={() => setIsAddModalOpen(true)}
             onCheckout={() => setIsCheckoutModalOpen(true)}
             elapsedSeconds={elapsedSeconds}

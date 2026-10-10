@@ -3,6 +3,8 @@ import { Search, Plus, X, Tag, Store, ChevronRight, CornerDownLeft, Sparkles } f
 import { INITIAL_CATEGORIES, STORE_INFO } from '../data/initialCategories';
 import { searchStoreBrands, detectBrandAndStore } from '../utils/brandSuggestions';
 import StoreBadge from './StoreBadge';
+import QuantityPickerModal from './QuantityPickerModal';
+import { parseQuantityInput, getDefaultUnit } from '../utils/quantityHelper';
 
 export default function SearchBar({
   searchQuery,
@@ -42,39 +44,38 @@ export default function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Dodaj artikel (samodejno prepozna lastno znamko ali doda splošen artikel)
+  const [pickerItem, setPickerItem] = useState(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
+  // Dodaj artikel (samodejno prepozna lastno znamko ali doda splošen artikel z izbiro količine)
   const handleAddGeneral = (e) => {
     e?.preventDefault();
     if (!searchQuery.trim()) return;
 
-    const detected = detectBrandAndStore(searchQuery.trim());
-    if (detected) {
-      onAddDirectItem?.({
-        title: searchQuery.trim(),
-        category: detected.category || (selectedCategory !== 'all' ? selectedCategory : 'ostalo'),
-        quantity: detected.defaultUnit || '1 kos',
-        price: detected.price || null,
-        store: detected.store,
-        selectedTier: detected.tier || 'budget'
-      });
-    } else {
-      onAddDirectItem?.({
-        title: searchQuery.trim(),
-        category: selectedCategory !== 'all' ? selectedCategory : 'ostalo',
-        quantity: '1 kos'
-      });
-    }
+    const parsed = parseQuantityInput(searchQuery.trim(), selectedCategory !== 'all' ? selectedCategory : '');
+    const detected = detectBrandAndStore(parsed.cleanTitle);
 
-    setSearchQuery('');
+    setPickerItem({
+      title: parsed.cleanTitle,
+      category: detected?.category || (selectedCategory !== 'all' ? selectedCategory : 'ostalo'),
+      quantity: parsed.quantity,
+      unit: parsed.unit,
+      price: detected?.price || null,
+      store: detected?.store || null,
+      selectedTier: detected?.tier || null
+    });
+    setIsPickerOpen(true);
     setIsDropdownOpen(false);
   };
 
-  // Dodaj točno določen artikel trgovca iz predlogov
+  // Dodaj točno določen artikel trgovca iz predlogov z izbiro količine
   const handleSelectSuggestion = (item) => {
-    onAddDirectItem?.({
+    const rawUnit = item.unit || getDefaultUnit(item.category, item.productName || item.title);
+    setPickerItem({
       title: item.productName || item.title,
       category: item.category || 'ostalo',
-      quantity: item.unit || '1 kos',
+      quantity: 1,
+      unit: rawUnit,
       price: item.discountPrice ? Number(item.discountPrice) : null,
       savings: item.regularPrice && item.regularPrice > item.discountPrice
         ? Number((item.regularPrice - item.discountPrice).toFixed(2))
@@ -83,9 +84,15 @@ export default function SearchBar({
       selectedTier: item.tier || null,
       matchedDealId: item.id || null
     });
-
-    setSearchQuery('');
+    setIsPickerOpen(true);
     setIsDropdownOpen(false);
+  };
+
+  const handleConfirmPicker = (finalItem) => {
+    onAddDirectItem?.(finalItem);
+    setSearchQuery('');
+    setPickerItem(null);
+    setIsPickerOpen(false);
   };
 
   const hasSuggestions = searchResults.totalCount > 0 && isDropdownOpen && searchQuery.trim().length >= 2;
@@ -321,6 +328,14 @@ export default function SearchBar({
           );
         })}
       </div>
+
+      {/* Mini modal za hitro izbiro količine */}
+      <QuantityPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        itemData={pickerItem}
+        onConfirm={handleConfirmPicker}
+      />
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { DEFAULT_FAMILIES, generateFamilyId } from '../data/defaultFamilies';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 import { normalizeText, findBestDeal } from '../utils/fuzzyMatch';
 import { detectBrandAndStore } from '../utils/brandSuggestions';
+import { parseQuantityAndUnit, normalizeUnit, calculateTotalItemPrice } from '../utils/quantityHelper';
 
 // Ključi za lokalno shrambo
 const LOCAL_STORAGE_ITEMS_KEY = 'nakupki_items_v2';
@@ -448,11 +449,41 @@ export function getAllLocalItemsRaw() {
   }
 }
 
+/**
+ * Normalizira artikel tako, da ima vedno structured quantity, unit, displayQuantity in totalItemPrice
+ */
+export function normalizeItemQuantity(item) {
+  if (!item) return item;
+  let q = item.quantity;
+  let u = item.unit;
+  let disp = item.displayQuantity;
+
+  if (typeof q !== 'number' || !u || !disp) {
+    const parsed = parseQuantityAndUnit(q, item.category, item.title);
+    q = typeof q === 'number' ? q : parsed.quantity;
+    u = u || parsed.unit;
+    disp = disp || `${q} ${u}`;
+  }
+
+  const p = typeof item.price === 'number' ? item.price : null;
+  const totalItemPrice = p !== null ? calculateTotalItemPrice(p, q) : null;
+
+  return {
+    ...item,
+    quantity: q,
+    unit: u,
+    displayQuantity: disp,
+    totalItemPrice: totalItemPrice
+  };
+}
+
 export function getLocalItems(familyId = null) {
   const targetFamilyId = familyId || getActiveFamilyId();
   const allItems = getAllLocalItemsRaw();
   // Združljivost za nazaj: artikli brez familyId pripadajo DEFAULT_FAMILY_ID
-  return allItems.filter(item => (item.familyId || DEFAULT_FAMILY_ID) === targetFamilyId);
+  return allItems
+    .filter(item => (item.familyId || DEFAULT_FAMILY_ID) === targetFamilyId)
+    .map(normalizeItemQuantity);
 }
 
 export function saveLocalItems(items, familyId = null) {
@@ -677,13 +708,22 @@ export async function addShoppingItem({
     if ((!resolvedQuantity || resolvedQuantity === '1 kos') && detected.defaultUnit) resolvedQuantity = detected.defaultUnit;
   }
   
+  const parsed = parseQuantityAndUnit(resolvedQuantity, resolvedCategory, title);
+  const numQuantity = typeof quantity === 'number' && !isNaN(quantity) ? quantity : parsed.quantity;
+  const itemUnit = unit ? normalizeUnit(unit, resolvedCategory, title) : parsed.unit;
+  const dispQuantity = displayQuantity || `${numQuantity} ${itemUnit}`;
+  const calcTotal = resolvedPrice !== null ? calculateTotalItemPrice(resolvedPrice, numQuantity) : null;
+
   const newItem = {
     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     familyId: currentFamilyId,
     title: title.trim(),
     category: resolvedCategory || 'ostalo',
-    quantity: resolvedQuantity?.trim() || '1 kos',
+    quantity: numQuantity,
+    unit: itemUnit,
+    displayQuantity: dispQuantity,
     price: resolvedPrice,
+    totalItemPrice: calcTotal,
     savings: savings ? Number(savings) : 0,
     store: resolvedStore || null,
     completed: false,
@@ -761,7 +801,20 @@ export async function toggleItemStatus(itemId, currentStatus) {
 export async function updateShoppingItem(itemId, fields) {
   const currentFamilyId = getActiveFamilyId();
   const localItems = getLocalItems(currentFamilyId);
-  const updated = localItems.map(item => item.id === itemId ? { ...item, ...fields } : item);
+  const updated = localItems.map(item => {
+    if (item.id !== itemId) return item;
+    const merged = { ...item, ...fields };
+    if ('quantity' in fields || 'price' in fields || 'unit' in fields) {
+      const q = typeof merged.quantity === 'number' ? merged.quantity : (parseFloat(String(merged.quantity).replace(',', '.')) || 1);
+      const u = merged.unit || 'kom';
+      const p = typeof merged.price === 'number' ? merged.price : null;
+      merged.quantity = q;
+      merged.unit = u;
+      merged.displayQuantity = `${q} ${u}`;
+      merged.totalItemPrice = p !== null ? calculateTotalItemPrice(p, q) : null;
+    }
+    return merged;
+  });
   saveLocalItems(updated, currentFamilyId);
 
   if (isFirebaseConfigured && db) {
@@ -774,6 +827,33 @@ export async function updateShoppingItem(itemId, fields) {
   }
 
   return true;
+}
+
+/**
+ * HITRA POSODOBITEV KOLIČINE ARTIKLA (+/-)
+ */
+export async function updateItemQuantity(itemId, newQuantity, newUnit = null) {
+  const currentFamilyId = getActiveFamilyId();
+  const localItems = getLocalItems(currentFamilyId);
+  const item = localItems.find(i => i.id === itemId);
+  if (!item) return false;
+
+  const q = Number(newQuantity);
+  if (isNaN(q) || q <= 0) {
+    return deleteShoppingItem(itemId);
+  }
+
+  const roundedQ = item.unit === 'kg' || item.unit === 'l' ? Number(q.toFixed(2)) : Math.round(q);
+  const u = newUnit || item.unit || 'kom';
+  const p = typeof item.price === 'number' ? item.price : null;
+  const totalItemPrice = p !== null ? calculateTotalItemPrice(p, roundedQ) : null;
+
+  return updateShoppingItem(itemId, {
+    quantity: roundedQ,
+    unit: u,
+    displayQuantity: `${roundedQ} ${u}`,
+    totalItemPrice: totalItemPrice
+  });
 }
 
 /**
