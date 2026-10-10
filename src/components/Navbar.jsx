@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Tag, Settings, Cloud, HardDrive, Receipt, UtensilsCrossed, Home, ChevronDown } from 'lucide-react';
+import { ShoppingBag, ShoppingCart, Tag, Settings, Cloud, HardDrive, Receipt, UtensilsCrossed, Home, ChevronDown } from 'lucide-react';
 import { isFirebaseConfigured } from '../firebase';
 
 export default function Navbar({ 
@@ -11,6 +11,7 @@ export default function Navbar({
   onOpenFamilyManager,
   onOpenSettings,
   activeCount = 0,
+  cartCount = 0,
   dealsCount = 0,
   recipesCount = 0,
   historyCount = 0
@@ -78,23 +79,42 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Glavna navigacija med 4 zavihki: Seznam, Akcije, Recepti, Zgodovina */}
-        <div className="grid grid-cols-4 gap-1 mt-2.5 p-1 bg-slate-100 rounded-xl">
+        {/* Glavna navigacija med zavihki: Načrtovanje, Košarica v trgovini, Akcije, Recepti, Zgodovina */}
+        <div className="grid grid-cols-5 gap-1 mt-2.5 p-1 bg-slate-100 rounded-xl">
           <button
-            onClick={() => setActiveTab('list')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer truncate ${
-              activeTab === 'list'
+            onClick={() => setActiveTab('planning')}
+            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer truncate ${
+              activeTab === 'planning'
                 ? 'bg-white text-emerald-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">Seznam</span>
+            <span className="truncate">Načrtovanje</span>
             {activeCount > 0 && (
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'list' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                activeTab === 'planning' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
               }`}>
                 {activeCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('cart')}
+            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer truncate ${
+              activeTab === 'cart'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-emerald-700'
+            }`}
+          >
+            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Košarica</span>
+            {cartCount > 0 && (
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black shrink-0 ${
+                activeTab === 'cart' ? 'bg-amber-300 text-slate-950' : 'bg-emerald-100 text-emerald-800'
+              }`}>
+                {cartCount}
               </span>
             )}
           </button>
@@ -103,7 +123,7 @@ export default function Navbar({
             onClick={() => setActiveTab('deals')}
             className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer truncate ${
               activeTab === 'deals'
-                ? 'bg-white text-emerald-700 shadow-xs'
+                ? 'bg-white text-rose-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >

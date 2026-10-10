@@ -96,7 +96,10 @@ export default function ShoppingList({
                     
                     {/* Okrogel gumb za kljukico */}
                     <button
-                      onClick={() => onToggleItem(item.id, item.completed)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleItem(item.id, item.completed);
+                      }}
                       className="mt-0.5 shrink-0 w-7 h-7 rounded-full border-2 border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 flex items-center justify-center transition cursor-pointer"
                       title="Označi kot kupljeno"
                     >
@@ -113,6 +116,12 @@ export default function ShoppingList({
                         {item.quantity && (
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
                             {item.quantity}
+                          </span>
+                        )}
+
+                        {item.hasCouponApplied && (
+                          <span className="px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-900 text-[10px] font-bold">
+                            🃏 {item.couponTitle || '-25% Joker'}
                           </span>
                         )}
                       </div>
@@ -143,8 +152,11 @@ export default function ShoppingList({
                               Razpoložljive opcije v katalogih:
                             </span>
                             <button
-                              onClick={() => onOpenDealComparison(item, tieredDeals, item.selectedTier)}
-                              className="text-[10px] font-semibold text-emerald-700 hover:underline flex items-center gap-0.5"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenDealComparison(item, tieredDeals, item.selectedTier);
+                              }}
+                              className="text-[10px] font-semibold text-emerald-700 hover:underline flex items-center gap-0.5 cursor-pointer"
                             >
                               <span>Primerjaj vse</span>
                               <ExternalLink className="w-2.5 h-2.5" />
@@ -155,7 +167,10 @@ export default function ShoppingList({
                             {/* 1. DISKONT / NAJCENEJE */}
                             {tieredDeals.budget && (
                               <button
-                                onClick={() => onSelectTier(item.id, 'budget', tieredDeals.budget)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSelectTier(item.id, 'budget', tieredDeals.budget);
+                                }}
                                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-[11px] font-medium border transition cursor-pointer ${
                                   item.selectedTier === 'budget' || (!item.selectedTier && !tieredDeals.brand && !tieredDeals.premium_local)
                                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs font-bold'
@@ -172,7 +187,10 @@ export default function ShoppingList({
                             {/* 2. ZNAMKA / BEST VALUE */}
                             {tieredDeals.brand && (
                               <button
-                                onClick={() => onSelectTier(item.id, 'brand', tieredDeals.brand)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSelectTier(item.id, 'brand', tieredDeals.brand);
+                                }}
                                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-[11px] font-medium border transition cursor-pointer ${
                                   item.selectedTier === 'brand'
                                     ? 'bg-amber-500 text-white border-amber-500 shadow-2xs font-bold'
@@ -192,7 +210,10 @@ export default function ShoppingList({
                             {/* 3. LOKALNO / EKO */}
                             {tieredDeals.premium_local && (
                               <button
-                                onClick={() => onSelectTier(item.id, 'premium_local', tieredDeals.premium_local)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSelectTier(item.id, 'premium_local', tieredDeals.premium_local);
+                                }}
                                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-[11px] font-medium border transition cursor-pointer ${
                                   item.selectedTier === 'premium_local'
                                     ? 'bg-teal-700 text-white border-teal-700 shadow-2xs font-bold'
@@ -213,8 +234,11 @@ export default function ShoppingList({
 
                     {/* Izbris */}
                     <button
-                      onClick={() => onDeleteItem(item.id)}
-                      className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteItem(item.id);
+                      }}
+                      className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                       title="Izbriši artikel"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -272,7 +296,10 @@ export default function ShoppingList({
                   >
                     {/* Kljukica - tap vrne med aktivne */}
                     <button
-                      onClick={() => onToggleItem(item.id, item.completed)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleItem(item.id, item.completed);
+                      }}
                       className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs cursor-pointer hover:bg-emerald-700 transition"
                       title="Vrni med aktivne"
                     >
@@ -288,6 +315,11 @@ export default function ShoppingList({
                         {item.quantity && (
                           <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.2 rounded">
                             {item.quantity}
+                          </span>
+                        )}
+                        {item.hasCouponApplied && (
+                          <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.2 rounded">
+                            🃏 {item.couponTitle || '-25% Joker'}
                           </span>
                         )}
                       </div>
@@ -322,7 +354,7 @@ export default function ShoppingList({
                           <button
                             type="button"
                             onClick={handleSavePrice}
-                            className="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[11px] hover:bg-emerald-700"
+                            className="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[11px] hover:bg-emerald-700 cursor-pointer"
                           >
                             ✓
                           </button>
@@ -330,7 +362,8 @@ export default function ShoppingList({
                       ) : (
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditingPriceId(item.id);
                             setTempPrice(hasPrice ? item.price.toString() : '');
                           }}
@@ -354,7 +387,10 @@ export default function ShoppingList({
 
                       {/* Izbris */}
                       <button
-                        onClick={() => onDeleteItem(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteItem(item.id);
+                        }}
                         className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition cursor-pointer"
                         title="Izbriši artikel"
                       >

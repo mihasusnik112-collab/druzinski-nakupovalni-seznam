@@ -538,6 +538,8 @@ export async function addShoppingItem({
     addedByAvatar: addedByAvatar || activeUser.avatar,
     selectedTier: resolvedTier || null,
     matchedDealId: matchedDealId || null,
+    hasCouponApplied: false,
+    couponTitle: null,
     createdAt: Date.now()
   };
 

@@ -13,6 +13,9 @@ import {
 import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
 import ShoppingList from './components/ShoppingList';
+import PlanningView from './components/PlanningView';
+import StoreCartView from './components/StoreCartView';
+import CouponOptimizer from './components/CouponOptimizer';
 import DealsView from './components/DealsView';
 import AddItemModal from './components/AddItemModal';
 import DealComparison from './components/DealComparison';
@@ -69,7 +72,7 @@ import {
 } from './services/shoppingService';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('list'); // 'list' | 'deals' | 'recipes' | 'history'
+  const [activeTab, setActiveTab] = useState('planning'); // 'planning' | 'cart' | 'deals' | 'recipes' | 'history'
   const [items, setItems] = useState([]);
   const [deals, setDeals] = useState([]);
   const [recipes, setRecipes] = useState(getLocalRecipes);
@@ -89,6 +92,9 @@ export default function App() {
   const [activeSession, setActiveSession] = useState(getLocalActiveSession);
   const [currentStore, setCurrentStore] = useState(() => activeSession?.storeName || 'Splošno');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Izbrana trgovina v zavihku "Košarica v trgovini"
+  const [cartFilterStore, setCartFilterStore] = useState('all');
 
   // Modali
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -326,6 +332,19 @@ export default function App() {
     });
   };
 
+  // Uveljavi kupon na artiklu (npr. Spar Joker -25%)
+  const handleApplyCoupon = async (itemId, coupon, discountedPrice, potentialSavings) => {
+    touchActivity();
+    await updateShoppingItem(itemId, {
+      hasCouponApplied: true,
+      couponTitle: coupon.title,
+      price: discountedPrice,
+      savings: potentialSavings,
+      store: coupon.store
+    });
+    triggerConfetti();
+  };
+
   // Odpri modal za primerjavo cen in kakovosti
   const handleOpenDealComparison = (item, tiers) => {
     setComparisonItem(item);
@@ -454,6 +473,7 @@ export default function App() {
   }, [items]);
 
   const activeCount = useMemo(() => items.filter(i => !i.completed).length, [items]);
+  const cartCount = useMemo(() => items.filter(i => i.completed).length, [items]);
 
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-800 pb-36">
@@ -471,6 +491,7 @@ export default function App() {
         onOpenFamilyManager={() => setIsFamilyManagerOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         activeCount={activeCount}
+        cartCount={cartCount}
         dealsCount={deals.length}
         recipesCount={recipes.length}
         historyCount={history.length}
@@ -479,87 +500,57 @@ export default function App() {
       {/* Glavno območje z vsebino */}
       <main className="max-w-2xl mx-auto px-4 pt-4 pb-12 space-y-4">
         
-        {/* ZAVIHEK: SEZNAM ARTIKLOV */}
-        {activeTab === 'list' && (
-          <div className="space-y-4">
-            
-            {/* Iskalnik in horizontalni filter kategorij */}
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              onOpenAddModal={() => setIsAddModalOpen(true)}
-              categoryCounts={categoryCounts}
-              catalogDeals={deals}
-              onAddDirectItem={addShoppingItem}
-            />
+        {/* ZAVIHEK 1: 📋 NAČRTOVANJE & AKCIJE (Domači seznam) */}
+        {activeTab === 'planning' && (
+          <PlanningView
+            items={items}
+            filteredItems={filteredItems}
+            deals={deals}
+            recipes={recipes}
+            frequencies={frequencies}
+            itemDealsMap={itemDealsMap}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            categoryCounts={categoryCounts}
+            totalPotentialSavings={totalPotentialSavings}
+            activeFamily={activeFamily}
+            currentMember={currentMember}
+            onAddItem={addShoppingItem}
+            onToggleItem={handleToggleItem}
+            onDeleteItem={handleDeleteItem}
+            onClearCompleted={handleClearCompleted}
+            onOpenAddItem={() => setIsAddModalOpen(true)}
+            onOpenDealComparison={handleOpenDealComparison}
+            onSelectTier={handleSelectTier}
+            onUpdateItemPrice={handleUpdateItemPrice}
+            onApplyCoupon={handleApplyCoupon}
+            onOpenDealsTab={() => setActiveTab('deals')}
+            onOpenRecipe={(rec) => setActiveTab('recipes')}
+          />
+        )}
 
-            {/* Samodejne bližnjice in priljubljeni artikli */}
-            <SmartShortcuts
-              frequencies={frequencies}
-              deals={deals}
-              activeItems={items}
-              onAddShortcutItem={addShoppingItem}
-            />
-
-            {/* Personaliziran prikaz akcij na domačem zaslonu */}
-            <PersonalizedDeals
-              activeFamily={activeFamily}
-              deals={deals}
-              currentItems={items}
-              onAddItem={addShoppingItem}
-              onOpenDealsTab={() => setActiveTab('deals')}
-            />
-
-            {/* Personalizirana priporočila za aktivno družino (Kosilo dneva) */}
-            <FamilyRecommendations
-              activeFamily={activeFamily}
-              deals={deals}
-              recipes={recipes}
-              currentItems={items}
-              onAddItem={addShoppingItem}
-              onOpenRecipe={(rec) => setActiveTab('recipes')}
-            />
-
-            {/* Značka potencialnega prihranka */}
-            {totalPotentialSavings > 0 && (
-              <div className="p-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 rounded-2xl text-white shadow-md shadow-emerald-700/15 flex items-center justify-between animate-in fade-in">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center font-black">
-                    🏷️
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-emerald-100 uppercase tracking-wider">
-                      Primerjava cen & akcij
-                    </div>
-                    <div className="text-xs font-medium">
-                      Ocenjeni družinski prihranek na seznamu:
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-black tracking-tight text-amber-300">
-                    ~{totalPotentialSavings.toFixed(2)} €
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Nakupovalni seznam */}
-            <ShoppingList
-              items={filteredItems}
-              itemDealsMap={itemDealsMap}
-              onToggleItem={handleToggleItem}
-              onDeleteItem={handleDeleteItem}
-              onClearCompleted={handleClearCompleted}
-              onOpenAddItem={() => setIsAddModalOpen(true)}
-              onOpenDealComparison={handleOpenDealComparison}
-              onSelectTier={handleSelectTier}
-              onUpdateItemPrice={handleUpdateItemPrice}
-            />
-
-          </div>
+        {/* ZAVIHEK 2: 🛒 KOŠARICA V TRGOVINI (Aktivni nakup na terenu) */}
+        {activeTab === 'cart' && (
+          <StoreCartView
+            items={items}
+            selectedStore={cartFilterStore}
+            onSelectStore={(st) => {
+              setCartFilterStore(st);
+              if (st !== 'all') {
+                setCurrentStore(st);
+              }
+            }}
+            onToggleItem={handleToggleItem}
+            onDeleteItem={handleDeleteItem}
+            onClearCompleted={handleClearCompleted}
+            onUpdateItemPrice={handleUpdateItemPrice}
+            onOpenAddItem={() => setIsAddModalOpen(true)}
+            onCheckout={() => setIsCheckoutModalOpen(true)}
+            elapsedSeconds={elapsedSeconds}
+            currentMember={currentMember}
+          />
         )}
 
         {/* ZAVIHEK: KATALOGI & AKCIJE */}
@@ -594,8 +585,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobilni plavajoči gumb (FAB) za dodajanje artikla */}
-      {activeTab === 'list' && (
+      {/* Mobilni plavajoči gumb (FAB) za dodajanje artikla v načrtovanju */}
+      {activeTab === 'planning' && (
         <div className={`fixed right-6 z-30 transition-all ${
           completedItems.length > 0 ? 'bottom-28' : 'bottom-6'
         }`}>
@@ -609,8 +600,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Nakupovalni način v živo: Spodnja lebdeča vrstica */}
-      {activeTab === 'list' && (
+      {/* Nakupovalni način v živo: Spodnja lebdeča vrstica (če smo v načrtovanju in imamo artikle v košarici) */}
+      {activeTab === 'planning' && (
         <LiveShoppingBar
           completedCount={completedItems.length}
           totalAmount={sessionTotalAmount}

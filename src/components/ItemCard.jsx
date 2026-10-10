@@ -28,7 +28,10 @@ export default function ItemCard({
       <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
         {/* Okrogel gumb za kljukico */}
         <button
-          onClick={() => onToggle(item.id, item.completed)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(item.id, item.completed);
+          }}
           aria-label={item.completed ? "Označi kot nakupljeno" : "Označi kot kupljeno"}
           className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
             item.completed
@@ -58,6 +61,13 @@ export default function ItemCard({
                 {item.quantity}
               </span>
             )}
+
+            {/* Značka kupona */}
+            {item.hasCouponApplied && (
+              <span className="px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-900 text-[10px] font-bold">
+                🃏 {item.couponTitle || '-25% Joker'}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -79,7 +89,10 @@ export default function ItemCard({
           {!item.completed && deal && (
             <div className="mt-2">
               <button
-                onClick={() => onOpenDeal(deal, item)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenDeal(deal, item);
+                }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 hover:border-emerald-400 text-emerald-800 text-xs font-medium shadow-xs transition hover:scale-[1.02] active:scale-95 group/deal"
               >
                 <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
@@ -100,7 +113,10 @@ export default function ItemCard({
       {/* Gumb za brisanje */}
       <div className="flex items-center gap-1 shrink-0">
         <button
-          onClick={() => onDelete(item.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(item.id);
+          }}
           className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
           title="Izbriši artikel"
         >
