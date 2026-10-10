@@ -350,11 +350,15 @@ export default function StoreCartView({
                       {/* Gumb za brisanje (varno izoliran s stopPropagation) */}
                       <button
                         type="button"
-                        onClick={(e) => handleDeleteSafe(e, item.id)}
-                        className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteSafe(e, item.id);
+                        }}
+                        className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-95 rounded-xl transition cursor-pointer shrink-0"
                         title="Izbriši artikel"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4 pointer-events-none" />
                       </button>
                     </div>
                   ))}
@@ -408,11 +412,15 @@ export default function StoreCartView({
                       </span>
                       <button
                         type="button"
-                        onClick={(e) => handleDeleteSafe(e, item.id)}
-                        className="p-1 text-slate-300 hover:text-rose-500 rounded-lg cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteSafe(e, item.id);
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 active:scale-95 rounded-lg cursor-pointer"
                         title="Izbriši artikel"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5 pointer-events-none" />
                       </button>
                     </div>
                   </div>
@@ -550,11 +558,15 @@ export default function StoreCartView({
                       {/* Gumb za brisanje */}
                       <button
                         type="button"
-                        onClick={(e) => handleDeleteSafe(e, item.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteSafe(e, item.id);
+                        }}
+                        className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 active:scale-95 rounded-lg transition cursor-pointer"
                         title="Izbriši artikel"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4 pointer-events-none" />
                       </button>
                     </div>
 

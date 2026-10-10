@@ -363,15 +363,19 @@ export default function App() {
     setIsDealComparisonOpen(true);
   };
 
-  // Izbris artikla
+  // Izbris artikla (takojšnja lokalna posodobitev stanja + trajni izbris)
   const handleDeleteItem = async (itemId) => {
     touchActivity();
+    // 1. Takojšnja optimistična odstranitev iz stanja aplikacije
+    setItems(prev => prev.filter(i => i.id !== itemId));
+    // 2. Trajna odstranitev iz localStorage in sinhronizacijskega kanala
     await deleteShoppingItem(itemId);
   };
 
-  // Počisti vse kupljeno
+  // Počisti vse kupljeno (takojšnja optimistična posodobitev)
   const handleClearCompleted = async () => {
     touchActivity();
+    setItems(prev => prev.filter(i => !i.completed));
     await clearAllCompletedItems();
   };
 

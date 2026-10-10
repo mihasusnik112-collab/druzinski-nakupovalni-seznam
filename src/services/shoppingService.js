@@ -470,6 +470,9 @@ export function saveLocalItems(items, familyId = null) {
     const combined = [...taggedItems, ...otherFamiliesItems];
     localStorage.setItem(LOCAL_STORAGE_ITEMS_KEY, JSON.stringify(combined));
 
+    // Obvesti naročnike v istem oknu
+    notifyLocalItemListeners();
+
     if (broadcastChannel) {
       broadcastChannel.postMessage({ type: 'ITEMS_UPDATED', items: taggedItems, familyId: targetFamilyId });
     }
@@ -561,10 +564,25 @@ export function saveLocalActiveUser(user) {
   } catch (e) {}
 }
 
+// Lokalni naročniki v istem oknu za takojšnjo reaktivnost
+const itemListeners = new Set();
+
+export function notifyLocalItemListeners() {
+  const currentItems = getLocalItems();
+  itemListeners.forEach(listener => {
+    try {
+      listener(currentItems);
+    } catch (err) {
+      console.warn('Napaka v item listenerju:', err);
+    }
+  });
+}
+
 /**
  * NAROČANJE NA POSODOBITVE ARTIKLOV (Real-time sync)
  */
 export function subscribeShoppingList(callback) {
+  itemListeners.add(callback);
   callback(getLocalItems());
 
   let unsubscribeFirestore = null;
@@ -612,6 +630,7 @@ export function subscribeShoppingList(callback) {
   window.addEventListener('storage', handleStorage);
 
   return () => {
+    itemListeners.delete(callback);
     if (typeof unsubscribeFirestore === 'function') {
       unsubscribeFirestore();
     }
@@ -761,49 +780,78 @@ export async function updateShoppingItem(itemId, fields) {
  * IZBRIS ARTIKLA
  */
 export async function deleteShoppingItem(itemId) {
-  const currentFamilyId = getActiveFamilyId();
-  const localItems = getLocalItems(currentFamilyId);
-  const updated = localItems.filter(item => item.id !== itemId);
-  saveLocalItems(updated, currentFamilyId);
+  try {
+    const allItems = getAllLocalItemsRaw();
+    // Neposredno izbriši artikel po ID-ju iz celotne lokalne shrambe
+    const updatedRaw = allItems.filter(item => item.id !== itemId);
+    localStorage.setItem(LOCAL_STORAGE_ITEMS_KEY, JSON.stringify(updatedRaw));
 
-  if (isFirebaseConfigured && db) {
-    try {
-      await deleteDoc(doc(db, 'shopping_list', itemId));
-    } catch (err) {
-      console.warn('Firestore delete error:', err);
+    // Obvesti poslušalce v istem oknu/tabu
+    notifyLocalItemListeners();
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: 'ITEMS_UPDATED', itemId });
     }
-  }
 
-  return true;
+    if (isFirebaseConfigured && db) {
+      deleteDoc(doc(db, 'shopping_list', itemId)).catch(err => {
+        console.warn('Firestore delete error:', err);
+      });
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Napaka pri izbrisu artikla:', err);
+    return false;
+  }
 }
 
 /**
  * POČISTI VSE KUPLJENO
  */
 export async function clearAllCompletedItems() {
-  const currentFamilyId = getActiveFamilyId();
-  const localItems = getLocalItems(currentFamilyId);
-  const updated = localItems.filter(item => !item.completed);
-  saveLocalItems(updated, currentFamilyId);
+  try {
+    const currentFamilyId = getActiveFamilyId();
+    const allItems = getAllLocalItemsRaw();
+    // Odstrani vse artikle trenutne družine, ki so completed === true
+    const updatedRaw = allItems.filter(item => {
+      const itemFamId = item.familyId || DEFAULT_FAMILY_ID;
+      if (itemFamId === currentFamilyId && item.completed) {
+        return false;
+      }
+      return true;
+    });
 
-  if (isFirebaseConfigured && db) {
-    try {
-      const q = query(collection(db, 'shopping_list'), where('familyId', '==', currentFamilyId));
-      const snap = await getDocs(q);
-      const deletePromises = [];
-      snap.forEach(d => {
-        if (d.data().completed) {
-          deletePromises.push(deleteDoc(doc(db, 'shopping_list', d.id)));
-        }
-      });
-      await Promise.all(deletePromises);
-    } catch (err) {
-      console.warn('Firestore clear error:', err);
+    localStorage.setItem(LOCAL_STORAGE_ITEMS_KEY, JSON.stringify(updatedRaw));
+    notifyLocalItemListeners();
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: 'ITEMS_UPDATED', familyId: currentFamilyId });
     }
-  }
 
-  return true;
+    if (isFirebaseConfigured && db) {
+      try {
+        const q = query(collection(db, 'shopping_list'), where('familyId', '==', currentFamilyId));
+        const snap = await getDocs(q);
+        const deletePromises = [];
+        snap.forEach(d => {
+          if (d.data().completed) {
+            deletePromises.push(deleteDoc(doc(db, 'shopping_list', d.id)));
+          }
+        });
+        await Promise.all(deletePromises);
+      } catch (err) {
+        console.warn('Firestore clear error:', err);
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Napaka pri brisanju kupljenega:', err);
+    return false;
+  }
 }
+
 
 /**
  * NAROČANJE NA KATALOG AKCIJ (Skupna baza za vse)
