@@ -16,6 +16,7 @@ import {
   Trash2
 } from 'lucide-react';
 import RecipeDetailsModal from './RecipeDetailsModal';
+import AddRecipeModal from './AddRecipeModal';
 import { CUISINES_OPTIONS } from '../data/defaultFamilies';
 import { findBestDeal } from '../utils/fuzzyMatch';
 
@@ -34,14 +35,6 @@ export default function RecipeBook({
 
   // Stanje za modal novega recepta
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newSubtitle, setNewSubtitle] = useState('');
-  const [newCuisine, setNewCuisine] = useState('slovenska');
-  const [newCookTime, setNewCookTime] = useState('30');
-  const [newServings, setNewServings] = useState('4');
-  const [newEmoji, setNewEmoji] = useState('🍲');
-  const [newIngredientsText, setNewIngredientsText] = useState('');
-  const [newInstructionsText, setNewInstructionsText] = useState('');
 
   // AI predlog tedna: Poišče recept glede na priljubljene kuhinje družine in popuste
   const aiWeeklySuggestion = useMemo(() => {
@@ -105,48 +98,6 @@ export default function RecipeBook({
     }
   };
 
-  const handleCreateRecipeSubmit = (e) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-
-    const parsedIngredients = newIngredientsText
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .map(line => {
-        const parts = line.split(',');
-        return {
-          name: parts[0].trim(),
-          quantity: parts[1] ? parts[1].trim() : '1',
-          unit: parts[2] ? parts[2].trim() : 'kos',
-          category: 'ostalo'
-        };
-      });
-
-    const parsedInstructions = newInstructionsText
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-
-    const created = {
-      title: newTitle.trim(),
-      subtitle: newSubtitle.trim() || 'Domači recept',
-      cuisine: newCuisine,
-      cookTime: parseInt(newCookTime) || 30,
-      servings: parseInt(newServings) || 4,
-      emoji: newEmoji || '🍳',
-      ingredients: parsedIngredients.length > 0 ? parsedIngredients : [{ name: 'Sestavine po okusu', quantity: '1', unit: 'porcija' }],
-      instructions: parsedInstructions.length > 0 ? parsedInstructions : ['Pripravi in postrezi z ljubeznijo.'],
-      dietaryFlags: []
-    };
-
-    onAddRecipe(created);
-    setIsAddRecipeOpen(false);
-    setNewTitle('');
-    setNewSubtitle('');
-    setNewIngredientsText('');
-    setNewInstructionsText('');
-  };
 
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
@@ -183,9 +134,10 @@ export default function RecipeBook({
 
             <button
               onClick={() => setIsAddRecipeOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 hover:from-black hover:to-slate-900 text-white text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer shrink-0 border border-slate-700"
             >
-              <Plus className="w-3.5 h-3.5" /> Dodaj recept
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Nov recept / AI</span>
             </button>
           </div>
         </div>
@@ -343,113 +295,16 @@ export default function RecipeBook({
         onImportIngredients={onImportIngredients}
       />
 
-      {/* MODAL ZA NOV RECEPT */}
-      {isAddRecipeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/65 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden">
-            
-            <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <ChefHat className="w-5 h-5 text-amber-400" />
-                <h3 className="text-base font-bold">Nov družinski recept</h3>
-              </div>
-              <button
-                onClick={() => setIsAddRecipeOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateRecipeSubmit} className="p-6 overflow-y-auto space-y-4 flex-1">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Naslov recepta
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="npr. Goveji zrezki v naravni omaki"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 font-semibold focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Kuhinja
-                  </label>
-                  <select
-                    value={newCuisine}
-                    onChange={(e) => setNewCuisine(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 font-semibold"
-                  >
-                    {CUISINES_OPTIONS.map(c => (
-                      <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Čas priprave (min)
-                  </label>
-                  <input
-                    type="number"
-                    value={newCookTime}
-                    onChange={(e) => setNewCookTime(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Sestavine (oblika: Ime, Količina, Enota)
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Goveji zrezki, 600, g&#10;Čebula, 2, kos&#10;Česen, 3, strok"
-                  value={newIngredientsText}
-                  onChange={(e) => setNewIngredientsText(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 font-mono focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Navodila (ena vrstica na korak)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="1. Zrezke začinimo in popečemo.&#10;2. Dušimo čebulo in omako zalijemo."
-                  value={newInstructionsText}
-                  onChange={(e) => setNewInstructionsText(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 font-sans focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddRecipeOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
-                >
-                  Prekliči
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-xs"
-                >
-                  Shrani recept
-                </button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
+      {/* MODAL ZA NOV RECEPT IN AI ISKANJE */}
+      <AddRecipeModal
+        isOpen={isAddRecipeOpen}
+        onClose={() => setIsAddRecipeOpen(false)}
+        onAddRecipe={onAddRecipe}
+        onImportIngredients={onImportIngredients}
+        deals={deals}
+        currentItems={currentItems}
+        activeFamily={activeFamily}
+      />
 
     </div>
   );
