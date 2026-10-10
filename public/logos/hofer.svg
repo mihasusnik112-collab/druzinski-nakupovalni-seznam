@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="hoferBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#002D72"/>
+      <stop offset="100%" stop-color="#001844"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer shield / rounded rectangle -->
+  <rect x="2" y="2" width="96" height="96" rx="14" fill="url(#hoferBg)"/>
+  <!-- Multi-colored borders: orange, yellow, light blue -->
+  <rect x="6" y="6" width="88" height="88" rx="11" fill="none" stroke="#FF671F" stroke-width="3"/>
+  <rect x="10" y="10" width="80" height="80" rx="8" fill="none" stroke="#FFD100" stroke-width="2.5"/>
+  <rect x="14" y="14" width="72" height="72" rx="6" fill="none" stroke="#00A3E0" stroke-width="2"/>
+  
+  <!-- Stylized Hofer/Aldi 'A' lines inside top -->
+  <path d="M50 22 L36 48 L44 48 L50 36 L56 48 L64 48 Z" fill="#00A3E0"/>
+  <path d="M48 26 L39 44 L43 44 L48 34 L53 44 L57 44 Z" fill="#FFD100"/>
+  <path d="M48 30 L43 40 L46 40 L48 36 L50 40 L53 40 Z" fill="#FF671F"/>
+  
+  <!-- HOFER wordmark bottom -->
+  <text x="50" y="74" text-anchor="middle" font-family="'Arial Black', Impact, sans-serif" font-weight="900" font-size="15" fill="#FFFFFF" letter-spacing="1.5">HOFER</text>
+</svg>

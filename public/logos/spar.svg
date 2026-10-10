@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- SPAR circle and fir tree symbol -->
+  <circle cx="50" cy="50" r="46" fill="#ffffff" stroke="#E11D48" stroke-width="7"/>
+  <circle cx="50" cy="50" r="41" fill="#ffffff"/>
+  <!-- Iconic green spruce / fir tree -->
+  <path d="M50 16 L65 37 L58 37 L72 58 L63 58 L76 76 L24 76 L37 58 L28 58 L42 37 L35 37 Z" fill="#007A3D"/>
+  <rect x="47" y="76" width="6" height="8" fill="#007A3D"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Mercator clean background -->
+  <rect width="100" height="100" rx="16" fill="#CC0000"/>
+  <!-- Mercator iconic white curved ribbon M symbol -->
+  <path d="M22 66 C 22 42, 33 26, 44 26 C 53 26, 58 35, 60 44 C 63 35, 69 26, 78 26 C 88 26, 92 36, 92 48 C 92 64, 82 72, 72 72 C 63 72, 58 64, 56 57 C 53 66, 46 72, 37 72 C 26 72, 22 62, 22 66 Z" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Mercator text or refined M glyph representation -->
+  <text x="50" y="87" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="11" fill="#FFFFFF" letter-spacing="0.5">Mercator</text>
+</svg>

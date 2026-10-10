@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- dm signature warm white/soft yellow base -->
+  <rect width="100" height="100" rx="16" fill="#FFFFFF" stroke="#6C1D6B" stroke-width="2"/>
+  <!-- dm wave / underline splash in yellow, red, blue -->
+  <path d="M15 68 Q 35 60 55 68 T 85 64" fill="none" stroke="#FED100" stroke-width="5" stroke-linecap="round"/>
+  <path d="M20 73 Q 45 66 65 73 T 82 70" fill="none" stroke="#E2001A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 78 Q 50 72 75 77" fill="none" stroke="#004A99" stroke-width="3" stroke-linecap="round"/>
+  <!-- dm lowercase letters -->
+  <text x="36" y="52" text-anchor="middle" font-family="'Century Gothic', 'Trebuchet MS', sans-serif" font-weight="900" font-size="36" fill="#6C1D6B">d</text>
+  <text x="64" y="52" text-anchor="middle" font-family="'Century Gothic', 'Trebuchet MS', sans-serif" font-weight="900" font-size="36" fill="#6C1D6B">m</text>
+</svg>

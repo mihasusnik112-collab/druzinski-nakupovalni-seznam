@@ -3,12 +3,18 @@
  * Vključuje živilske trgovce in drogerije z uradnimi logotipi in barvno shemo
  */
 
+const getLogoPath = (filename) => {
+  const base = import.meta.env?.BASE_URL || '/';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  return `${cleanBase}logos/${filename}`;
+};
+
 export const STORES_LIST = [
   {
     id: 'spar',
     name: 'Spar / Interspar Slovenija',
     shortName: 'Spar',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Spar-logo.svg/320px-Spar-logo.svg.png',
+    logo: getLogoPath('spar.svg'),
     fallbackEmoji: '🔴',
     color: '#e11d48',
     bgColor: 'bg-red-600',
@@ -21,7 +27,7 @@ export const STORES_LIST = [
     id: 'lidl',
     name: 'Lidl Slovenija',
     shortName: 'Lidl',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Lidl-Logo.svg/320px-Lidl-Logo.svg.png',
+    logo: getLogoPath('lidl.svg'),
     fallbackEmoji: '🔵',
     color: '#2563eb',
     bgColor: 'bg-blue-600',
@@ -34,7 +40,7 @@ export const STORES_LIST = [
     id: 'hofer',
     name: 'Hofer Slovenija',
     shortName: 'Hofer',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hofer_Logo.svg/320px-Hofer_Logo.svg.png',
+    logo: getLogoPath('hofer.svg'),
     fallbackEmoji: '🔷',
     color: '#0284c7',
     bgColor: 'bg-sky-700',
@@ -47,7 +53,7 @@ export const STORES_LIST = [
     id: 'mercator',
     name: 'Mercator Slovenija',
     shortName: 'Mercator',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Mercator_logo.svg/320px-Mercator_logo.svg.png',
+    logo: getLogoPath('mercator.svg'),
     fallbackEmoji: '🔴',
     color: '#b91c1c',
     bgColor: 'bg-red-700',
@@ -60,7 +66,7 @@ export const STORES_LIST = [
     id: 'tus',
     name: 'Tuš Hipermarket',
     shortName: 'Tuš',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tu%C5%A1_logo.svg/320px-Tu%C5%A1_logo.svg.png',
+    logo: getLogoPath('tus.svg'),
     fallbackEmoji: '🟢',
     color: '#16a34a',
     bgColor: 'bg-green-600',
@@ -73,7 +79,7 @@ export const STORES_LIST = [
     id: 'eleclerc',
     name: 'E.Leclerc Ljubljana & Maribor',
     shortName: 'E.Leclerc',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Logo_E.Leclerc_Sans_Fond.svg/320px-Logo_E.Leclerc_Sans_Fond.svg.png',
+    logo: getLogoPath('eleclerc.svg'),
     fallbackEmoji: '🔵',
     color: '#0284c7',
     bgColor: 'bg-blue-700',
@@ -86,7 +92,7 @@ export const STORES_LIST = [
     id: 'eurospin',
     name: 'Eurospin Slovenija',
     shortName: 'Eurospin',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Eurospin_logo.svg/320px-Eurospin_logo.svg.png',
+    logo: getLogoPath('eurospin.svg'),
     fallbackEmoji: '🟡',
     color: '#d97706',
     bgColor: 'bg-amber-500',
@@ -99,7 +105,7 @@ export const STORES_LIST = [
     id: 'dm',
     name: 'dm drogerie markt Slovenija',
     shortName: 'dm',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/320px-Dm_Logo.svg.png',
+    logo: getLogoPath('dm.svg'),
     fallbackEmoji: '🟡',
     color: '#7c3aed',
     bgColor: 'bg-purple-600',
@@ -112,7 +118,7 @@ export const STORES_LIST = [
     id: 'muller',
     name: 'Müller Drogerija',
     shortName: 'Müller',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Mueller_Drogerie_logo.svg/320px-Mueller_Drogerie_logo.svg.png',
+    logo: getLogoPath('muller.svg'),
     fallbackEmoji: '🟠',
     color: '#ea580c',
     bgColor: 'bg-orange-600',
@@ -127,8 +133,7 @@ export const STORES_LIST = [
 export const STORE_INFO = STORES_LIST.reduce((acc, store) => {
   acc[store.shortName] = {
     ...store,
-    logoUrl: store.logo,
-    logo: store.fallbackEmoji
+    logoUrl: store.logo
   };
   return acc;
 }, {
@@ -136,7 +141,7 @@ export const STORE_INFO = STORES_LIST.reduce((acc, store) => {
     id: 'splosno',
     name: 'Splošna trgovina',
     shortName: 'Splošno',
-    logo: '🛍️',
+    logo: null,
     fallbackEmoji: '🛍️',
     logoUrl: null,
     color: '#64748b',
