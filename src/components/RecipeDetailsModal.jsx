@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   ShoppingBag, 
@@ -24,22 +24,25 @@ export default function RecipeDetailsModal({
   currentItems = [],
   onImportIngredients
 }) {
-  if (!isOpen || !recipe) return null;
-
-  // Preglej vsako sestavino za akcije in preveri, ali je že na seznamu
-  const [selectedIngredients, setSelectedIngredients] = useState(() => {
-    // Odkljukaj sestavine, ki jih uporabnik morda že ima (sol, olje, vodo) ali so že na seznamu
-    const basicPantry = ['sol', 'poper', 'voda', 'olje za peko', 'olje'];
-    return recipe.ingredients
-      .filter(ing => {
-        const isBasic = basicPantry.some(p => ing.name.toLowerCase() === p);
-        const onList = currentItems.some(i => i.title.toLowerCase().includes(ing.name.toLowerCase()));
-        return !isBasic && !onList;
-      })
-      .map(ing => ing.name);
-  });
-
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [importSuccess, setImportSuccess] = useState(false);
+
+  useEffect(() => {
+    if (recipe?.ingredients) {
+      const basicPantry = ['sol', 'poper', 'voda', 'olje za peko', 'olje'];
+      const initial = recipe.ingredients
+        .filter(ing => {
+          const isBasic = basicPantry.some(p => ing.name.toLowerCase() === p);
+          const onList = currentItems.some(i => i.title.toLowerCase().includes(ing.name.toLowerCase()));
+          return !isBasic && !onList;
+        })
+        .map(ing => ing.name);
+      setSelectedIngredients(initial);
+      setImportSuccess(false);
+    }
+  }, [recipe, currentItems, isOpen]);
+
+  if (!isOpen || !recipe) return null;
 
   const toggleIngredient = (name) => {
     if (selectedIngredients.includes(name)) {

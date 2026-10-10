@@ -12,32 +12,23 @@ import {
 
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
-import SearchBar from './components/SearchBar';
-import ShoppingList from './components/ShoppingList';
 import PlanningView from './components/PlanningView';
 import StoreCartView from './components/StoreCartView';
-import CouponOptimizer from './components/CouponOptimizer';
 import FamilyLogin from './components/Auth/FamilyLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import DealsView from './components/DealsView';
 import AddItemModal from './components/AddItemModal';
 import DealComparison from './components/DealComparison';
-import UserManager from './components/UserManager';
 import FamilyDrawer from './components/FamilyDrawer';
 import SettingsModal from './components/SettingsModal';
 import LiveShoppingBar from './components/LiveShoppingBar';
 import CheckoutModal from './components/CheckoutModal';
 import PurchaseHistory from './components/PurchaseHistory';
-import SmartShortcuts from './components/SmartShortcuts';
 import RecipeBook from './components/RecipeBook';
-import RecipeDetailsModal from './components/RecipeDetailsModal';
 import OnboardingWizard from './components/OnboardingWizard';
 import FamilySwitcher from './components/FamilySwitcher';
-import PersonalizedDeals from './components/PersonalizedDeals';
-import FamilyRecommendations from './components/FamilyRecommendations';
 
 import { DEFAULT_FAMILY_MEMBERS } from './data/commonItems';
-import { INITIAL_CATEGORIES } from './data/initialCategories';
 import { findBestDeal } from './utils/fuzzyMatch';
 import { 
   subscribeShoppingList, 
@@ -113,7 +104,6 @@ export default function App() {
   // Modali
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUserManagerOpen, setIsUserManagerOpen] = useState(false);
-  const [userManagerMode, setUserManagerMode] = useState('switch'); // 'switch' | 'manage'
   const [isDealComparisonOpen, setIsDealComparisonOpen] = useState(false);
   const [comparisonItem, setComparisonItem] = useState(null);
   const [comparisonTiers, setComparisonTiers] = useState({});
@@ -469,13 +459,12 @@ export default function App() {
   };
 
   const handleOnboardingComplete = async (familyData, options) => {
-    let saved;
     if (onboardingInitialData?.familyName === '') {
       // Ustvarjanje nove družine
-      saved = createFamily(familyData);
+      createFamily(familyData);
     } else {
       // Posodobitev obstoječe
-      saved = updateActiveFamily(familyData);
+      updateActiveFamily(familyData);
     }
 
     // Če je uporabnik izbral takojšen uvoz osnovnih živil (Staples)
@@ -559,10 +548,7 @@ export default function App() {
         currentMember={currentMember}
         activeFamily={activeFamily}
         isAdmin={isAdmin}
-        onOpenUserManager={() => {
-          setUserManagerMode('switch');
-          setIsUserManagerOpen(true);
-        }}
+        onOpenUserManager={() => setIsUserManagerOpen(true)}
         onOpenFamilyManager={() => setIsFamilyManagerOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         activeCount={activeCount}
@@ -603,7 +589,7 @@ export default function App() {
             onUpdateItemQuantity={handleUpdateItemQuantity}
             onApplyCoupon={handleApplyCoupon}
             onOpenDealsTab={() => setActiveTab('deals')}
-            onOpenRecipe={(rec) => setActiveTab('recipes')}
+            onOpenRecipe={() => setActiveTab('recipes')}
           />
         )}
 
