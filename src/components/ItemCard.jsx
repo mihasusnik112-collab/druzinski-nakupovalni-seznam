@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check, Trash2, Tag, Sparkles, ExternalLink, Flame } from 'lucide-react';
 import { INITIAL_CATEGORIES, STORE_INFO } from '../data/initialCategories';
+import StoreBadge from './StoreBadge';
 
 export default function ItemCard({
   item,
@@ -96,7 +97,7 @@ export default function ItemCard({
                 }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 hover:border-emerald-400 text-emerald-800 text-xs font-medium shadow-xs transition hover:scale-[1.02] active:scale-95 group/deal"
               >
-                <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
+                <StoreBadge storeName={deal.store} size="xs" />
                 <span className="font-bold text-slate-900">{deal.store}:</span>
                 <span className="font-extrabold text-emerald-700">{deal.discountPrice?.toFixed(2)} €</span>
                 {deal.discountPercentage && (

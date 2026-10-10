@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Calendar, Flame, ExternalLink, ArrowRight, Check, Store } from 'lucide-react';
 import { STORE_INFO } from '../data/initialCategories';
+import StoreBadge from './StoreBadge';
 
 export default function DealModal({
   isOpen,
@@ -38,7 +39,7 @@ export default function DealModal({
           </button>
 
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">{storeInfo.logo}</span>
+            <StoreBadge storeName={deal.store} size="md" />
             <span className="text-sm font-semibold tracking-wide uppercase opacity-90">
               {deal.store} • Aktualni letak
             </span>
@@ -132,7 +133,7 @@ export default function DealModal({
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate pr-2">
-                        <span>{altStore.logo || '🛒'}</span>
+                        <StoreBadge storeName={alt.store} size="xs" />
                         <div className="truncate">
                           <span className="font-bold text-slate-800">{alt.store}: </span>
                           <span className="text-slate-600">{alt.productName}</span>

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import SearchBar from './components/SearchBar';
 import ShoppingList from './components/ShoppingList';
 import PlanningView from './components/PlanningView';
@@ -657,8 +658,8 @@ export default function App() {
 
       {/* Mobilni plavajoči gumb (FAB) za dodajanje artikla v načrtovanju */}
       {activeTab === 'planning' && (
-        <div className={`fixed right-6 z-30 transition-all ${
-          completedItems.length > 0 ? 'bottom-28' : 'bottom-6'
+        <div className={`fixed right-5 z-40 transition-all ${
+          completedItems.length > 0 ? 'bottom-36' : 'bottom-20'
         }`}>
           <button
             onClick={() => setIsAddModalOpen(true)}
@@ -764,12 +765,28 @@ export default function App() {
         currentMember={currentMember}
         onSelectCurrentMember={setCurrentMember}
         activeFamily={activeFamily}
+        isAdmin={isAdmin}
+        onOpenAdmin={() => {
+          setIsSettingsOpen(false);
+          setActiveTab('admin');
+        }}
         onOpenOnboarding={() => {
           setOnboardingInitialData(activeFamily);
           setIsOnboardingOpen(true);
         }}
         onOpenFamilyManager={() => setIsFamilyManagerOpen(true)}
         onLogoutFamily={handleLogoutFamily}
+      />
+
+      {/* Fiksna spodnja navigacijska vrstica (Bottom Navigation Bar) */}
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        activeCount={activeCount}
+        cartCount={cartCount}
+        dealsCount={deals.length}
+        recipesCount={recipes.length}
+        historyCount={history.length}
       />
 
     </div>

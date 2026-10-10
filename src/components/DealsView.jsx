@@ -368,8 +368,8 @@ export default function DealsView({
                     <div>
                       {/* Zgornja vrstica kartice akcije */}
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border ${store.badgeColor || 'bg-slate-100 text-slate-800'}`}>
-                          <span>{store.logo || '🛒'}</span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border ${store.badgeColor || 'bg-slate-100 text-slate-800'}`}>
+                          <StoreBadge storeName={deal.store} size="xs" />
                           <span>{deal.store}</span>
                         </span>
 

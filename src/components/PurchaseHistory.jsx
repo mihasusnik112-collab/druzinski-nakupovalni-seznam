@@ -12,6 +12,7 @@ import {
   Tag
 } from 'lucide-react';
 import { STORE_INFO, INITIAL_CATEGORIES } from '../data/initialCategories';
+import StoreBadge from './StoreBadge';
 
 export default function PurchaseHistory({
   history = [],
@@ -172,9 +173,7 @@ export default function PurchaseHistory({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Ikona trgovine ali logotip */}
-                      <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-lg shrink-0">
-                        {storeInfo?.logo || '🛍️'}
-                      </div>
+                      <StoreBadge storeName={record.storeName} size="lg" />
 
                       <div className="truncate">
                         <div className="flex items-center gap-2 flex-wrap">

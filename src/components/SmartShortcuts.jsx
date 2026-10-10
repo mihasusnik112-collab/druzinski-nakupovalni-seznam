@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Plus, Check, Sparkles, TrendingDown } from 'lucide-react';
 import { findBestDeal } from '../utils/fuzzyMatch';
 import { STORE_INFO } from '../data/initialCategories';
+import StoreBadge from './StoreBadge';
 
 export default function SmartShortcuts({
   frequencies = [],
@@ -98,8 +99,8 @@ export default function SmartShortcuts({
                 {/* Živa primerjava cen (mini značka) */}
                 <div className="mt-1">
                   {bestDeal ? (
-                    <div className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md truncate max-w-full">
-                      <span>{storeInfo?.logo || '🏷️'}</span>
+                    <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md truncate max-w-full">
+                      <StoreBadge storeName={bestDeal.store} size="xs" />
                       <span className="text-slate-900">{bestDeal.store}:</span>
                       <span className="text-emerald-700 font-extrabold">{bestDeal.discountPrice.toFixed(2)} €</span>
                     </div>

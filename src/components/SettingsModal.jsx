@@ -15,7 +15,8 @@ import {
   Save,
   CheckCircle2,
   Shield,
-  Palette
+  Palette,
+  Crown
 } from 'lucide-react';
 import { isFirebaseConfigured, saveFirebaseConfig } from '../firebase';
 import { seedDealsToFirestore } from '../services/shoppingService';
@@ -40,6 +41,8 @@ export default function SettingsModal({
   currentMember,
   onSelectCurrentMember,
   activeFamily = null,
+  isAdmin = false,
+  onOpenAdmin = null,
   onOpenOnboarding = null,
   onOpenFamilyManager = null,
   onLogoutFamily = null
@@ -692,6 +695,34 @@ export default function SettingsModal({
               </div>
             )}
           </div>
+
+          {/* ======================================================== */}
+          {/* SEKCIJA: SKRBNIŠKA NADZORNA PLOŠČA (ADMIN - SUŠNIK) */}
+          {/* ======================================================== */}
+          {isAdmin && onOpenAdmin && (
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <div className="flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <Crown className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-amber-950">Skrbniška nadzorna plošča</h4>
+                    <p className="text-[11px] text-amber-800">
+                      Upravljanje družin, sinhronizacije in letakov
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onOpenAdmin}
+                  className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition cursor-pointer shrink-0"
+                >
+                  Odpri
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* ======================================================== */}
           {/* SEKCIJA 5: ODJAVA DRUŽINE (PIN ZAŠČITA) */}

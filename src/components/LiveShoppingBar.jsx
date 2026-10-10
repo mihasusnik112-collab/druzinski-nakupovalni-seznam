@@ -29,8 +29,8 @@ export default function LiveShoppingBar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white border-t border-slate-700/80 shadow-2xl animate-in slide-in-from-bottom-6 duration-200">
-      <div className="max-w-2xl mx-auto px-4 py-3">
+    <div className="fixed bottom-14 sm:bottom-16 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white border-t border-slate-700/80 shadow-2xl animate-in slide-in-from-bottom-6 duration-200">
+      <div className="max-w-2xl mx-auto px-4 py-2.5">
         
         {/* Zgornja vrstica: Trgovina in čas seje */}
         <div className="flex items-center justify-between text-[11px] text-slate-300 pb-2 mb-2 border-b border-slate-800">

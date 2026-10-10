@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, ShoppingCart, Tag, Settings, Cloud, HardDrive, Receipt, UtensilsCrossed, Home, ChevronDown, Crown } from 'lucide-react';
+import { ShoppingBag, Settings, Cloud, HardDrive, ChevronDown, Crown } from 'lucide-react';
 import { isFirebaseConfigured } from '../firebase';
 
 export default function Navbar({ 
@@ -10,12 +10,7 @@ export default function Navbar({
   isAdmin = false,
   onOpenUserManager,
   onOpenFamilyManager,
-  onOpenSettings,
-  activeCount = 0,
-  cartCount = 0,
-  dealsCount = 0,
-  recipesCount = 0,
-  historyCount = 0
+  onOpenSettings
 }) {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -24,49 +19,49 @@ export default function Navbar({
           
           {/* Logo & Naslov & Izbira Družine */}
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={onOpenFamilyManager}
-                  className="inline-flex items-center gap-1 text-base font-bold text-slate-900 tracking-tight leading-tight hover:text-emerald-700 transition cursor-pointer group"
+                  className="inline-flex items-center gap-1 text-base font-bold text-slate-900 tracking-tight leading-tight hover:text-emerald-700 transition cursor-pointer group truncate"
                   title="Klikni za menjavo družine"
                 >
-                  <span>{activeFamily?.familyName || 'Družinski Seznam'}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-transform" />
+                  <span className="truncate">{activeFamily?.familyName || 'Družinski Seznam'}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-transform shrink-0" />
                 </button>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-100 text-emerald-800">
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-100 text-emerald-800 shrink-0">
                   {activeFamily?.familyId || 'Koda'}
                 </span>
                 {isFirebaseConfigured ? (
-                  <span className="flex items-center gap-1 text-emerald-600 font-medium text-[10px]">
-                    <Cloud className="w-3 h-3 text-emerald-500 animate-pulse" /> Sinhronizirano
+                  <span className="flex items-center gap-1 text-emerald-600 font-medium text-[10px] truncate">
+                    <Cloud className="w-3 h-3 text-emerald-500 animate-pulse shrink-0" /> Sinhronizirano
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-slate-500 text-[10px]">
-                    <HardDrive className="w-3 h-3 text-slate-400" /> Lokalno
+                  <span className="flex items-center gap-1 text-slate-500 text-[10px] truncate">
+                    <HardDrive className="w-3 h-3 text-slate-400 shrink-0" /> Lokalno
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Desna orodna vrstica: Izbira družinskega člana & Nastavitve */}
-          <div className="flex items-center gap-2">
+          {/* Desna orodna vrstica: Profil, Admin (za skrbnika) & Nastavitve */}
+          <div className="flex items-center gap-2 shrink-0">
             
-            {/* Preklopnik profila z enim dotikom (odpre Family Drawer) */}
+            {/* Preklopnik profila z enim dotikom */}
             <button
               onClick={onOpenUserManager}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition active:scale-95 border border-slate-200/90 shadow-2xs cursor-pointer ring-1 ring-slate-900/5"
               title="Preklopi družinskega člana"
             >
               <div 
-                className="w-6 h-6 rounded-xl flex items-center justify-center text-sm shadow-2xs"
+                className="w-6 h-6 rounded-xl flex items-center justify-center text-sm shadow-2xs shrink-0"
                 style={{ backgroundColor: currentMember?.color ? `${currentMember.color}25` : '#ecfdf5' }}
               >
                 {currentMember?.avatar || '🧑'}
@@ -76,8 +71,25 @@ export default function Navbar({
               </span>
             </button>
 
+            {/* Skrbniški gumb samo za skrbnika (Družina Sušnik) */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('admin')}
+                className={`p-2 rounded-xl transition active:scale-95 cursor-pointer border ${
+                  activeTab === 'admin'
+                    ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                }`}
+                title="Skrbniška nadzorna plošča"
+              >
+                <Crown className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Gumb za nastavitve */}
             <button
+              type="button"
               onClick={onOpenSettings}
               className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition active:scale-95 border border-transparent hover:border-slate-200 cursor-pointer"
               title="Nastavitve & Koda družine"
@@ -85,120 +97,6 @@ export default function Navbar({
               <Settings className="w-4 h-4" />
             </button>
           </div>
-        </div>
-
-        {/* Glavna navigacija med zavihki */}
-        <div className={`grid gap-1 mt-2.5 p-1 bg-slate-100 rounded-xl ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
-          <button
-            onClick={() => setActiveTab('planning')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer truncate ${
-              activeTab === 'planning'
-                ? 'bg-white text-emerald-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">Načrtovanje</span>
-            {activeCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'planning' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {activeCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('cart')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer truncate ${
-              activeTab === 'cart'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-700 hover:text-emerald-700'
-            }`}
-          >
-            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">Košarica</span>
-            {cartCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black shrink-0 ${
-                activeTab === 'cart' ? 'bg-amber-300 text-slate-950' : 'bg-emerald-100 text-emerald-800'
-              }`}>
-                {cartCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('deals')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer truncate ${
-              activeTab === 'deals'
-                ? 'bg-white text-rose-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Tag className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-            <span className="truncate">Akcije</span>
-            {dealsCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'deals' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {dealsCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('recipes')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer truncate ${
-              activeTab === 'recipes'
-                ? 'bg-white text-amber-600 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <UtensilsCrossed className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="truncate">Recepti</span>
-            {recipesCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'recipes' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {recipesCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer truncate ${
-              activeTab === 'history'
-                ? 'bg-white text-cyan-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Receipt className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-            <span className="truncate">Zgodovina</span>
-            {historyCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
-                activeTab === 'history' ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {historyCount}
-              </span>
-            )}
-          </button>
-
-          {/* Skrbniški zavihek samo za družino Sušnik */}
-          {isAdmin && (
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer truncate ${
-                activeTab === 'admin'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-amber-800 hover:text-amber-900 bg-amber-100/60'
-              }`}
-              title="Skrbniška nadzorna plošča"
-            >
-              <Crown className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Admin</span>
-            </button>
-          )}
         </div>
       </div>
     </header>
