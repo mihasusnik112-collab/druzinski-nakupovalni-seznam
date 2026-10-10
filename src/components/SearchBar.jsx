@@ -131,7 +131,13 @@ export default function SearchBar({
 
         <button
           type="button"
-          onClick={onOpenAddModal}
+          onClick={(e) => {
+            if (searchQuery.trim()) {
+              handleAddGeneral(e);
+            } else {
+              onOpenAddModal?.();
+            }
+          }}
           className="flex items-center gap-1.5 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold text-sm rounded-2xl shadow-md shadow-emerald-600/20 transition cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />

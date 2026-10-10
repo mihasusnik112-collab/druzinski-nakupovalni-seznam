@@ -679,6 +679,9 @@ export async function addShoppingItem({
   title, 
   category, 
   quantity, 
+  unit = null,
+  displayQuantity = null,
+  totalItemPrice = null,
   price = null,
   savings = null,
   store = null,
@@ -712,7 +715,9 @@ export async function addShoppingItem({
   const numQuantity = typeof quantity === 'number' && !isNaN(quantity) ? quantity : parsed.quantity;
   const itemUnit = unit ? normalizeUnit(unit, resolvedCategory, title) : parsed.unit;
   const dispQuantity = displayQuantity || `${numQuantity} ${itemUnit}`;
-  const calcTotal = resolvedPrice !== null ? calculateTotalItemPrice(resolvedPrice, numQuantity) : null;
+  const calcTotal = totalItemPrice !== null && totalItemPrice !== undefined
+    ? Number(totalItemPrice)
+    : (resolvedPrice !== null ? calculateTotalItemPrice(resolvedPrice, numQuantity) : null);
 
   const newItem = {
     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),

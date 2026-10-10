@@ -11,13 +11,13 @@ export function normalizeUnit(rawUnit, category = '', title = '') {
   }
 
   const u = rawUnit.toLowerCase().trim();
-  if (['x', 'kom', 'kos', 'komad', 'komada', 'komadov', 'kom.'].includes(u)) return 'kom';
-  if (['kg', 'kilo', 'kilogram', 'kilogramov', 'kg.'].includes(u)) return 'kg';
-  if (['g', 'gram', 'gramov', 'g.'].includes(u)) return 'g';
-  if (['l', 'liter', 'litra', 'litrov', 'l.'].includes(u)) return 'l';
-  if (['ml', 'mililiter', 'ml.'].includes(u)) return 'ml';
-  if (['plato', 'platoja', 'platojev'].includes(u)) return 'plato';
-  if (['paket', 'pak.', 'pak'].includes(u)) return 'paket';
+  if (['x', 'kom', 'kos', 'komad', 'komada', 'komadov', 'kom.', 'kosa', 'kosi'].includes(u)) return 'kom';
+  if (['kg', 'kilo', 'kilogram', 'kilograma', 'kilogramov', 'kg.'].includes(u)) return 'kg';
+  if (['g', 'gram', 'grama', 'gramov', 'g.'].includes(u)) return 'g';
+  if (['l', 'liter', 'litra', 'litrov', 'litri', 'l.'].includes(u)) return 'l';
+  if (['ml', 'mililiter', 'mililitra', 'mililitrov', 'ml.'].includes(u)) return 'ml';
+  if (['plato', 'platoja', 'platojev', 'platoji', 'platoju'].includes(u)) return 'plato';
+  if (['paket', 'paketa', 'paketov', 'paketi', 'pak.', 'pak'].includes(u)) return 'paket';
 
   return u;
 }
@@ -47,7 +47,7 @@ export function getDefaultUnit(category = '', title = '') {
 }
 
 /**
- * Razčleni vnos uporabnika (npr. "2x mleko", "1.5kg banan", "pivo 6 kom")
+ * Razčleni vnos uporabnika (npr. "2x mleko", "1.5kg banan", "pivo 6 kom", "plato piva", "1 plato piva")
  * Vrne: { cleanTitle, quantity, unit, displayQuantity }
  */
 export function parseQuantityInput(input = '', defaultCategory = '') {
@@ -61,8 +61,10 @@ export function parseQuantityInput(input = '', defaultCategory = '') {
     };
   }
 
-  // 1. Vzorec na začetku: "2x mleko", "2 x mleko", "1.5 kg banan", "1,5kg jabolk", "6 kom pivo", "2l mleka"
-  const prefixMatch = str.match(/^(\d+(?:[.,]\d+)?)\s*(x|kom|kos|kg|g|l|ml|plato|paket)?\s*(?:x\s*)?(.+)$/i);
+  const unitRegexPart = '(?:x|kom|kos|kosa|kosi|komad|komada|komadov|kg|kilo|kilogram|kilograma|kilogramov|g|gram|grama|gramov|l|liter|litra|litrov|ml|mililiter|mililitra|mililitrov|plato|platoja|platojev|platoji|paket|paketa|paketov|paketi)';
+
+  // 1. Vzorec na začetku z številko: "2x mleko", "2 x mleko", "1.5 kg banan", "1,5kg jabolk", "6 kom pivo", "1 plato piva"
+  const prefixMatch = str.match(new RegExp(`^(\\d+(?:[.,]\\d+)?)\\s*(${unitRegexPart})?\\s*(?:x\\s*)?(.+)$`, 'i'));
   if (prefixMatch) {
     const rawNum = prefixMatch[1].replace(',', '.');
     const rawUnit = prefixMatch[2];
@@ -80,8 +82,24 @@ export function parseQuantityInput(input = '', defaultCategory = '') {
     }
   }
 
-  // 2. Vzorec na koncu: "mleko 2x", "pivo 6 kom", "banane 1.5kg"
-  const suffixMatch = str.match(/^(.+?)\s+(\d+(?:[.,]\d+)?)\s*(x|kom|kos|kg|g|l|ml|plato|paket)?$/i);
+  // 2. Vzorec na začetku BREZ številke za plato / paket: "plato piva", "paket vode"
+  const standalonePrefixMatch = str.match(new RegExp(`^(plato|platoja|platojev|platoji|paket|paketa|paketov)\\s+(.+)$`, 'i'));
+  if (standalonePrefixMatch) {
+    const rawUnit = standalonePrefixMatch[1];
+    const rest = standalonePrefixMatch[2].trim();
+    if (rest.length > 0) {
+      const unit = normalizeUnit(rawUnit, defaultCategory, rest);
+      return {
+        cleanTitle: rest,
+        quantity: 1,
+        unit,
+        displayQuantity: `1 ${unit}`
+      };
+    }
+  }
+
+  // 3. Vzorec na koncu z številko: "mleko 2x", "pivo 6 kom", "banane 1.5kg", "pivo 1 plato"
+  const suffixMatch = str.match(new RegExp(`^(.+?)\\s+(\\d+(?:[.,]\\d+)?)\\s*(${unitRegexPart})?$`, 'i'));
   if (suffixMatch) {
     const rest = suffixMatch[1].trim();
     const rawNum = suffixMatch[2].replace(',', '.');
@@ -95,6 +113,22 @@ export function parseQuantityInput(input = '', defaultCategory = '') {
         quantity: num,
         unit,
         displayQuantity: `${num} ${unit}`
+      };
+    }
+  }
+
+  // 4. Vzorec na koncu BREZ številke za plato / paket: "pivo plato", "voda paket"
+  const standaloneSuffixMatch = str.match(new RegExp(`^(.+?)\\s+(plato|platoja|platojev|platoji|paket|paketa|paketov)$`, 'i'));
+  if (standaloneSuffixMatch) {
+    const rest = standaloneSuffixMatch[1].trim();
+    const rawUnit = standaloneSuffixMatch[2];
+    if (rest.length > 0) {
+      const unit = normalizeUnit(rawUnit, defaultCategory, rest);
+      return {
+        cleanTitle: rest,
+        quantity: 1,
+        unit,
+        displayQuantity: `1 ${unit}`
       };
     }
   }
