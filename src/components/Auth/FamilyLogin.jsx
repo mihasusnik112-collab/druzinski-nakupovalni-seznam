@@ -53,6 +53,26 @@ export default function FamilyLogin({
     }
   };
 
+  const handleHardResetPwa = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) {
+          await reg.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      }
+    } catch (e) {
+      console.warn('Reset error:', e);
+    }
+    window.location.reload(true);
+  };
+
   // Vnos številke preko PIN številčnice
   const handlePinDigit = (digit) => {
     if (pin.length < 4) {
@@ -331,13 +351,22 @@ export default function FamilyLogin({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowInstallHelp(false)}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition cursor-pointer"
-            >
-              Razumem, zapri
-            </button>
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={handleHardResetPwa}
+                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>🔄 Počisti predpomnilnik in ponovno naloži</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInstallHelp(false)}
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Razumem, zapri
+              </button>
+            </div>
           </div>
         </div>
       )}

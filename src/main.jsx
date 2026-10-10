@@ -8,3 +8,10 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+// Samodejno preveri posodobitve PWA Service Workerja
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then((reg) => {
+    reg.update().catch(() => {});
+  }).catch(() => {});
+}
