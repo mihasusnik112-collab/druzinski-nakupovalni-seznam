@@ -9,50 +9,49 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
+      injectRegister: 'auto',
+      includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'icons/*.png', 'logos/*.svg'],
       manifest: {
-        id: 'druzinski-seznam-app-v5',
-        start_url: '/druzinski-nakupovalni-seznam/?app=standalone',
-        scope: '/druzinski-nakupovalni-seznam/',
+        // Zamenjan enolični ID, da se razbije prejšnji register v brskalniku:
+        id: '/druzinski-nakupovalni-seznam/?app=druzina_v2',
         name: 'Družinski Nakupovalni Seznam',
-        short_name: 'Družinski Seznam',
-        description: 'Pametni družinski nakupovalni seznam z analizo akcij slovenskih trgovcev in PIN zaščito',
-        theme_color: '#10b981',
-        background_color: '#ffffff',
-        display: 'standalone',
-        display_override: ['standalone', 'window-controls-overlay'],
+        short_name: 'Družinski Nakupi',
+        description: 'Pametni družinski nakupovalni seznam in akcije trgovin',
+        theme_color: '#059669',
+        background_color: '#f8fafc',
+        display: 'standalone', // KLJUČNO: odstrani URL vrstico brskalnika
         orientation: 'portrait',
+        start_url: '/druzinski-nakupovalni-seznam/',
+        scope: '/druzinski-nakupovalni-seznam/',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-maskable-512x512.png',
-            sizes: '512x512',
+            src: 'icons/icon-192x192.png',
+            sizes: '192x192',
             type: 'image/png',
             purpose: 'maskable'
           },
           {
-            src: 'pwa-192x192.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml'
+            src: 'icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'pwa-512x512.svg',
+            src: 'icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/logos/'),
@@ -68,5 +67,5 @@ export default defineConfig({
         ]
       }
     })
-  ],
+  ]
 })
