@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, Plus, X, Tag, Store, ChevronRight, CornerDownLeft, Sparkles } from 'lucide-react';
 import { INITIAL_CATEGORIES, STORE_INFO } from '../data/initialCategories';
-import { searchStoreBrands } from '../utils/brandSuggestions';
+import { searchStoreBrands, detectBrandAndStore } from '../utils/brandSuggestions';
 import StoreBadge from './StoreBadge';
 
 export default function SearchBar({
@@ -42,16 +42,28 @@ export default function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Dodaj splošen artikel (ko uporabnik pritisne Enter ali gumb)
+  // Dodaj artikel (samodejno prepozna lastno znamko ali doda splošen artikel)
   const handleAddGeneral = (e) => {
     e?.preventDefault();
     if (!searchQuery.trim()) return;
 
-    onAddDirectItem?.({
-      title: searchQuery.trim(),
-      category: selectedCategory !== 'all' ? selectedCategory : 'ostalo',
-      quantity: '1 kos'
-    });
+    const detected = detectBrandAndStore(searchQuery.trim());
+    if (detected) {
+      onAddDirectItem?.({
+        title: searchQuery.trim(),
+        category: detected.category || (selectedCategory !== 'all' ? selectedCategory : 'ostalo'),
+        quantity: detected.defaultUnit || '1 kos',
+        price: detected.price || null,
+        store: detected.store,
+        selectedTier: detected.tier || 'budget'
+      });
+    } else {
+      onAddDirectItem?.({
+        title: searchQuery.trim(),
+        category: selectedCategory !== 'all' ? selectedCategory : 'ostalo',
+        quantity: '1 kos'
+      });
+    }
 
     setSearchQuery('');
     setIsDropdownOpen(false);
@@ -126,6 +138,31 @@ export default function SearchBar({
       {hasSuggestions && (
         <div className="absolute top-11 left-0 right-0 z-50 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           
+          {/* Prepoznana lastna znamka opozorilo */}
+          {searchResults.detectedBrand && (
+            <div className="px-3.5 py-2.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-white border-b border-emerald-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <StoreBadge storeName={searchResults.detectedBrand.store} size="sm" />
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-emerald-950">
+                      Prepoznana znamka: <strong>{searchResults.detectedBrand.brand}</strong>
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      {searchResults.detectedBrand.store} Diskont
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700">
+                    Cena od {searchResults.detectedBrand.price?.toFixed(2)} € • {searchResults.detectedBrand.unitPriceFormatted}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] font-semibold text-slate-400">
+                Matični trgovec
+              </span>
+            </div>
+          )}
+
           <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs">
             <span className="font-bold text-slate-700 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />

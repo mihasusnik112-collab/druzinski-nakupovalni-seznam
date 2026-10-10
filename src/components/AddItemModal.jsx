@@ -3,6 +3,8 @@ import { X, Plus, Sparkles, Flame, Check, Tag, Layers } from 'lucide-react';
 import { INITIAL_CATEGORIES } from '../data/initialCategories';
 import { COMMON_ITEMS, DEFAULT_FAMILY_MEMBERS } from '../data/commonItems';
 import { findBestDeal } from '../utils/fuzzyMatch';
+import { detectBrandAndStore } from '../utils/brandSuggestions';
+import StoreBadge from './StoreBadge';
 
 export default function AddItemModal({
   isOpen,
@@ -32,6 +34,12 @@ export default function AddItemModal({
     if (!title.trim() || title.trim().length < 2) return null;
     return findBestDeal(title, deals, currentMember?.preference || 'best_value');
   }, [title, deals, currentMember]);
+
+  // Zaznavanje lastne trgovske znamke (npr. Pittinger, Combino, S-Budget)
+  const detectedOwnBrand = useMemo(() => {
+    if (!title.trim() || title.trim().length < 2) return null;
+    return detectBrandAndStore(title);
+  }, [title]);
 
   // Filtrirani predlogi pogostih artiklov glede na vnos
   const filteredSuggestions = useMemo(() => {
@@ -127,6 +135,31 @@ export default function AddItemModal({
               placeholder="npr. Mleko, Maslo, Kruh..."
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition shadow-xs"
             />
+
+            {/* Zaznana lastna trgovska znamka */}
+            {detectedOwnBrand && (
+              <div className="mt-2.5 p-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-white border border-emerald-200 flex items-center justify-between animate-in fade-in">
+                <div className="flex items-center gap-2">
+                  <StoreBadge storeName={detectedOwnBrand.store} size="sm" />
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-emerald-950">
+                        {detectedOwnBrand.brand} ({detectedOwnBrand.store})
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        Lastna znamka
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-700">
+                      Cena od {detectedOwnBrand.price?.toFixed(2)} € • {detectedOwnBrand.unitPriceFormatted}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold text-slate-400">
+                  {detectedOwnBrand.store}
+                </span>
+              </div>
+            )}
 
             {/* Zaznana akcija in izbira kakovostnega razreda v živo */}
             {liveDealResult?.tieredDeals && (liveDealResult.tieredDeals.budget || liveDealResult.tieredDeals.brand || liveDealResult.tieredDeals.premium_local) && (

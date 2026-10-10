@@ -19,6 +19,7 @@ import { DEFAULT_FAMILY_MEMBERS } from '../data/commonItems';
 import { DEFAULT_FAMILIES, generateFamilyId } from '../data/defaultFamilies';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 import { normalizeText, findBestDeal } from '../utils/fuzzyMatch';
+import { detectBrandAndStore } from '../utils/brandSuggestions';
 
 // Ključi za lokalno shrambo
 const LOCAL_STORAGE_ITEMS_KEY = 'nakupki_items_v2';
@@ -505,21 +506,37 @@ export async function addShoppingItem({
 }) {
   const activeUser = getLocalActiveUser();
   const currentFamilyId = familyId || getActiveFamilyId();
+
+  // Samodejno prepoznavanje lastne trgovske znamke, če trgovina ali cena nista določeni
+  let resolvedStore = store;
+  let resolvedPrice = price ? Number(price) : null;
+  let resolvedTier = selectedTier;
+  let resolvedCategory = category;
+  let resolvedQuantity = quantity;
+
+  const detected = detectBrandAndStore(title);
+  if (detected) {
+    if (!resolvedStore) resolvedStore = detected.store;
+    if (resolvedPrice === null && detected.price) resolvedPrice = detected.price;
+    if (!resolvedTier) resolvedTier = detected.tier || 'budget';
+    if ((!resolvedCategory || resolvedCategory === 'ostalo') && detected.category) resolvedCategory = detected.category;
+    if ((!resolvedQuantity || resolvedQuantity === '1 kos') && detected.defaultUnit) resolvedQuantity = detected.defaultUnit;
+  }
   
   const newItem = {
     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     familyId: currentFamilyId,
     title: title.trim(),
-    category: category || 'ostalo',
-    quantity: quantity?.trim() || '1 kos',
-    price: price ? Number(price) : null,
+    category: resolvedCategory || 'ostalo',
+    quantity: resolvedQuantity?.trim() || '1 kos',
+    price: resolvedPrice,
     savings: savings ? Number(savings) : 0,
-    store: store || null,
+    store: resolvedStore || null,
     completed: false,
     addedByUserId: addedByUserId || activeUser.id,
     addedByName: addedByName || activeUser.name,
     addedByAvatar: addedByAvatar || activeUser.avatar,
-    selectedTier: selectedTier || null,
+    selectedTier: resolvedTier || null,
     matchedDealId: matchedDealId || null,
     createdAt: Date.now()
   };

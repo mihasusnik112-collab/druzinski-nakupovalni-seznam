@@ -20,9 +20,15 @@ Tvoja naloga je natančna vizualna analiza predložene strani kataloga in pretvo
 
 PRAVILA ZA KLASIFIKACIJO:
 1. "tier" (Kakovostni razred):
-   - "budget": Lastne diskontne znamke trgovcev (npr. S-Budget, Pilos, Milbona, K-Classic, Milfina, Clever, Balea, Denkmit).
-   - "brand": Priznane uveljavljene domače ali tuje blagovne znamke (npr. Ljubljanske mlekarne, Mu, Barcaffè, Argeta, Poli, Ariel, Somat, Nivea).
-   - "premium_local": Ekološki/bio izdelki, zaščiteni tradicionalni izdelki ter linije domačih pridelovalcev (npr. Spar Natur*pur, Bio Zone, Naša nam paše, Okusi domačega kraja, Slovenska potica).
+   - "budget": Lastne diskontne znamke trgovcev:
+     * Spar: S-Budget, Pittinger (pivo), DESPAR.
+     * Lidl: Combino (testenine), Argus & Perlenbacher (pivo), Pilos (mlečno), Cien (nega), W5 (čistila), Pikok (mesnine).
+     * Hofer: Cucina Nobile (testenine), Bergkönig (pivo), Milfina (mlečno), Tandil (čistila).
+     * Mercator: Lastna znamka Mercator, Lumpi (otroško).
+     * Tuš: Tuš znamka, Taft (pivo).
+     * Eurospin: Tre Mulini (testenine/moka), Best Bräu (pivo), Land (mlečno), Dexal (čistila).
+   - "brand": Priznane uveljavljene domače ali tuje blagovne znamke (npr. Ljubljanske mlekarne, Mu, Barcaffè, Argeta, Poli, Ariel, Somat, Nivea, Laško, Union, Barilla).
+   - "premium_local": Ekološki/bio izdelki, zaščiteni tradicionalni izdelki ter linije domačih pridelovalcev (npr. Spar Natur*pur, Bio Zone, Bio Natura, Naša nam paše, Okusi domačega kraja, Slovenska potica).
 
 2. "origin" in certifikati:
    - Če je na embalaži ali ob izdelku slovenska zastava, napis "Slovenski izdelek", "Poreklo: Slovenija" ali oznaka "Izbrana kakovost Slovenija", označi isLocal: true in origin: "Slovenija".
