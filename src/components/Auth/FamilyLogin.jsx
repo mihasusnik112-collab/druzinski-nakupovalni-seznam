@@ -331,23 +331,23 @@ export default function FamilyLogin({
             <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
               <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-950 space-y-1.5">
                 <div className="font-bold text-emerald-900 flex items-center gap-1">
-                  👉 V brskalniku izberite:
+                  📲 Namestitev kot prava aplikacija (brez URL vrstice):
                 </div>
                 <p className="text-[11px]">
-                  Ko telefon odpre meni <em>&quot;Namesti in ustvari bližnjico&quot;</em>, vedno kliknite na <strong>drugo možnost</strong>:
+                  V brskalniku Chrome kliknite <strong>tri pikice (⋮)</strong> zgoraj desno ter izberite <strong>&quot;Namesti aplikacijo&quot;</strong> (ali &quot;Namesti Družinski Seznam&quot;).
                 </p>
-                <div className="p-2 bg-white rounded-xl border border-emerald-300 font-bold text-center text-xs text-emerald-800 shadow-2xs">
-                  ✅ &quot;Ustvari bližnjico&quot; (Bližnjice v Chromu)
-                </div>
               </div>
 
-              <div className="space-y-1.5 text-[11px]">
-                <p className="font-bold text-slate-800">Če se meni ne odpre samodejno:</p>
-                <ol className="list-decimal pl-4 space-y-1 text-slate-600">
-                  <li>V brskalniku Chrome kliknite <strong>tri pikice (⋮)</strong> zgoraj desno.</li>
-                  <li>Izberite <strong>&quot;Dodaj na začetni zaslon&quot;</strong> ali <strong>&quot;Namesti aplikacijo&quot;</strong>.</li>
-                  <li>Potrdite klik na <strong>Dodaj</strong>.</li>
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-amber-950 space-y-1.5 text-[11px]">
+                <p className="font-bold text-amber-900">⚠️ Telefon javi &quot;Aplikacija je že nameščena&quot;?</p>
+                <ol className="list-decimal pl-4 space-y-1 text-amber-900 font-medium">
+                  <li>Levo od naslova URL tapnite ikono <strong>nastavitve spletnega mesta</strong> (stikala ali 🔒).</li>
+                  <li>Izberite <strong>&quot;Nastavitve spletnega mesta&quot;</strong> &rarr; <strong>&quot;Počisti in ponastavi&quot;</strong>.</li>
+                  <li>Osvežite stran in ponovno kliknite <strong>&quot;Namesti aplikacijo&quot;</strong>.</li>
                 </ol>
+                <p className="text-[10px] text-amber-800 pt-1">
+                  💡 <em>Nasvet: Če uporabljate telefon Samsung, stran odprite v aplikaciji <strong>Samsung Internet</strong> in kliknite puščico za namestitev v spodnji vrstici &ndash; tam se namesti takoj!</em>
+                </p>
               </div>
             </div>
 

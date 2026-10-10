@@ -12,16 +12,17 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'icons/*.png', 'logos/*.svg'],
       manifest: {
-        // Zamenjan enolični ID, da se razbije prejšnji register v brskalniku:
-        id: '/druzinski-nakupovalni-seznam/?app=druzina_v2',
+        // Popolnoma nov enolični ID in start_url, da se pretrga povezava s starim WebAPK-jem:
+        id: 'druzinski-nakupovalni-seznam-v3',
         name: 'Družinski Nakupovalni Seznam',
-        short_name: 'Družinski Nakupi',
+        short_name: 'Družinski Seznam',
         description: 'Pametni družinski nakupovalni seznam in akcije trgovin',
         theme_color: '#059669',
         background_color: '#f8fafc',
         display: 'standalone', // KLJUČNO: odstrani URL vrstico brskalnika
+        display_override: ['standalone', 'window-controls-overlay'],
         orientation: 'portrait',
-        start_url: '/druzinski-nakupovalni-seznam/',
+        start_url: '/druzinski-nakupovalni-seznam/?pwa=v3',
         scope: '/druzinski-nakupovalni-seznam/',
         icons: [
           {
