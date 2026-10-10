@@ -9,8 +9,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png', 'pwa-192x192.svg', 'pwa-512x512.svg', 'logos/*.svg'],
       manifest: {
+        id: '/druzinski-nakupovalni-seznam/',
+        start_url: '/druzinski-nakupovalni-seznam/',
+        scope: '/druzinski-nakupovalni-seznam/',
         name: 'Družinski Nakupovalni Seznam',
         short_name: 'Nakupi',
         description: 'Pametni družinski nakupovalni seznam z analizo akcij slovenskih trgovcev in PIN zaščito',
@@ -20,6 +23,22 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-maskable-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
             src: 'pwa-192x192.svg',
             sizes: '192x192',
             type: 'image/svg+xml'
@@ -28,12 +47,6 @@ export default defineConfig({
             src: 'pwa-512x512.svg',
             sizes: '512x512',
             type: 'image/svg+xml'
-          },
-          {
-            src: 'pwa-512x512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
           }
         ]
       },

@@ -62,6 +62,7 @@ export default function SettingsModal({
   const [newName, setNewName] = useState('');
   const [newAvatar, setNewAvatar] = useState('🧑');
   const [newColor, setNewColor] = useState('#3b82f6');
+  const [showPwaTroubleshoot, setShowPwaTroubleshoot] = useState(false);
 
   if (!isOpen) return null;
 
@@ -645,6 +646,51 @@ export default function SettingsModal({
                 Shrani
               </button>
             </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* SEKCIJA 4: NAMESTITEV NA TELEFON (PWA) */}
+          {/* ======================================================== */}
+          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-600" />
+                <span>Namestitev na telefon (PWA)</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowPwaTroubleshoot(!showPwaTroubleshoot)}
+                className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 underline cursor-pointer"
+              >
+                {showPwaTroubleshoot ? 'Zapri navodila' : 'Telefon javi: "Že nameščeno"?'}
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-500">
+              Aplikacijo lahko namestite na telefon brez brskalniške vrstice in z ikono na domačem zaslonu.
+            </p>
+
+            {showPwaTroubleshoot && (
+              <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs space-y-2 text-emerald-950 animate-in fade-in duration-150">
+                <h4 className="font-bold text-emerald-900 flex items-center gap-1.5">
+                  💡 Zakaj telefon napiše &quot;Ta aplikacija je že nameščena&quot;?
+                </h4>
+                <p className="text-[11px] leading-relaxed">
+                  Android sistemi (Chrome in Samsung Internet) v ozadju ustvarijo paket aplikacije (WebAPK). Če aplikacije ne vidite na začetnem zaslonu:
+                </p>
+                <ol className="list-decimal pl-4 text-[11px] space-y-1.5 font-medium">
+                  <li>
+                    <strong>Poiščite jo v predalu z vsemi aplikacijami:</strong> Na domačem zaslonu telefona s prstom podrsajte navzgor in poiščite ikono <strong>&quot;Nakupi&quot;</strong>. Pridržite jo in povlecite na začetni zaslon.
+                  </li>
+                  <li>
+                    <strong>Če je bila ikona odstranjena le z namizja:</strong> V Androidu gumb &quot;Odstrani z namizja&quot; odstrani le bližnjico. Pojdite v <em>Nastavitve telefona &rarr; Aplikacije &rarr; Nakupi</em> ter izberite <strong>Odstrani (Uninstall)</strong>. Nato se vrnite v Chrome in ponovno kliknite <em>Namesti</em>.
+                  </li>
+                  <li>
+                    <strong>Počistite spletno mesto v Chrome:</strong> V Chromu tapnite ikono nastavitev poleg naslova URL &rarr; <em>Nastavitve spletnega mesta &rarr; Počisti in ponastavi</em>.
+                  </li>
+                </ol>
+              </div>
+            )}
           </div>
 
           {/* ======================================================== */}
