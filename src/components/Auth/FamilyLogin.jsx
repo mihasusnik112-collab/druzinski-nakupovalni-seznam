@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Lock, 
@@ -8,7 +8,10 @@ import {
   ShieldCheck, 
   AlertCircle,
   Delete,
-  CheckCircle2
+  CheckCircle2,
+  Smartphone,
+  X,
+  Info
 } from 'lucide-react';
 import { loginFamilyByPin } from '../../services/shoppingService';
 
@@ -21,6 +24,34 @@ export default function FamilyLogin({
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          setDeferredPrompt(null);
+        }
+      } catch (e) {
+        console.warn('Install prompt error:', e);
+        setShowInstallHelp(true);
+      }
+    } else {
+      setShowInstallHelp(true);
+    }
+  };
 
   // Vnos številke preko PIN številčnice
   const handlePinDigit = (digit) => {
@@ -243,11 +274,73 @@ export default function FamilyLogin({
 
       </div>
 
-      {/* Spodnji PWA podatek */}
-      <div className="mt-6 text-center text-emerald-200/80 text-[11px] space-y-0.5">
-        <p className="font-semibold">📱 PWA Aplikacija • Popolna podpora brez povezave</p>
-        <p className="text-[10px] text-emerald-300/60">Privzeti PIN za testiranje: <strong>1234</strong></p>
+      {/* Spodnji gumb za namestitev aplikacije */}
+      <div className="mt-5 flex flex-col items-center gap-2">
+        <button
+          type="button"
+          onClick={handleInstallApp}
+          className="px-4 py-2.5 bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md rounded-2xl text-white text-xs font-bold border border-white/30 transition flex items-center gap-2 shadow-sm cursor-pointer"
+        >
+          <Smartphone className="w-4 h-4 text-emerald-300" />
+          <span>📲 Dodaj aplikacijo na začetni zaslon</span>
+        </button>
+
+        <p className="text-[10px] text-emerald-200/70">
+          Privzeti skrbniški PIN: <strong>1234</strong>
+        </p>
       </div>
+
+      {/* POPUP Z NAVODILI ZA NAMESTITEV */}
+      {showInstallHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2 text-emerald-800">
+                <Smartphone className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-sm font-bold">Kako dodati na zaslon</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInstallHelp(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
+              <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-950 space-y-1.5">
+                <div className="font-bold text-emerald-900 flex items-center gap-1">
+                  👉 V brskalniku izberite:
+                </div>
+                <p className="text-[11px]">
+                  Ko telefon odpre meni <em>&quot;Namesti in ustvari bližnjico&quot;</em>, vedno kliknite na <strong>drugo možnost</strong>:
+                </p>
+                <div className="p-2 bg-white rounded-xl border border-emerald-300 font-bold text-center text-xs text-emerald-800 shadow-2xs">
+                  ✅ &quot;Ustvari bližnjico&quot; (Bližnjice v Chromu)
+                </div>
+              </div>
+
+              <div className="space-y-1.5 text-[11px]">
+                <p className="font-bold text-slate-800">Če se meni ne odpre samodejno:</p>
+                <ol className="list-decimal pl-4 space-y-1 text-slate-600">
+                  <li>V brskalniku Chrome kliknite <strong>tri pikice (⋮)</strong> zgoraj desno.</li>
+                  <li>Izberite <strong>&quot;Dodaj na začetni zaslon&quot;</strong> ali <strong>&quot;Namesti aplikacijo&quot;</strong>.</li>
+                  <li>Potrdite klik na <strong>Dodaj</strong>.</li>
+                </ol>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowInstallHelp(false)}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+            >
+              Razumem, zapri
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
